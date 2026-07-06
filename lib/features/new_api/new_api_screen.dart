@@ -11,7 +11,6 @@ class NewApiScreen extends StatefulWidget {
   State<NewApiScreen> createState() => _NewApiScreenState();
 }
 
-const List<String> apiTypeList = <String>['Interna', 'Externa'];
 const List<String> refreshApiIntervalOptions = <String>[
   '1 hora',
   '2 horas',
@@ -19,13 +18,7 @@ const List<String> refreshApiIntervalOptions = <String>[
 ];
 
 class _NewApiScreenState extends State<NewApiScreen> {
-  String _typeDropdownValue = apiTypeList.first;
   String _intervalDropdownValue = refreshApiIntervalOptions.first;
-  void apiTypeDropdownCallback(String? selectedValue) {
-    setState(() {
-      _typeDropdownValue = selectedValue!;
-    });
-  }
 
   void intervalDropdownCallback(String? selectedValue) {
     setState(() {
@@ -103,7 +96,7 @@ class _NewApiScreenState extends State<NewApiScreen> {
                       ),
 
                       SizedBox(height: 16),
-                      
+
                       TextFormField(
                         keyboardType: TextInputType.text,
                         style: const TextStyle(
@@ -121,50 +114,22 @@ class _NewApiScreenState extends State<NewApiScreen> {
 
                       SizedBox(height: 16),
 
-                      Row(
-                        children: [
-                          Expanded(
-                            child: DropdownButtonFormField<String>(
-                              initialValue: _typeDropdownValue,
-                              isExpanded: true,
-                              decoration: const InputDecoration(
-                                labelText: "Tipo de API",
-                                prefixIcon: Icon(Icons.lan),
+                      DropdownButtonFormField<String>(
+                        initialValue: _intervalDropdownValue,
+                        isExpanded: true,
+                        decoration: const InputDecoration(
+                          labelText: "Intervalo",
+                          prefixIcon: Icon(Icons.timer),
+                        ),
+                        items: refreshApiIntervalOptions
+                            .map(
+                              (value) => DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
                               ),
-                              items: apiTypeList
-                                  .map(
-                                    (value) => DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    ),
-                                  )
-                                  .toList(),
-                              onChanged: apiTypeDropdownCallback,
-                            ),
-                          ),
-
-                          SizedBox(width: 16),
-
-                          Expanded(
-                            child: DropdownButtonFormField<String>(
-                              initialValue: _intervalDropdownValue,
-                              isExpanded: true,
-                              decoration: const InputDecoration(
-                                labelText: "Intervalo",
-                                prefixIcon: Icon(Icons.timer),
-                              ),
-                              items: refreshApiIntervalOptions
-                                  .map(
-                                    (value) => DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    ),
-                                  )
-                                  .toList(),
-                              onChanged: intervalDropdownCallback,
-                            ),
-                          ),
-                        ],
+                            )
+                            .toList(),
+                        onChanged: intervalDropdownCallback,
                       ),
 
                       SizedBox(height: 24),
@@ -172,55 +137,37 @@ class _NewApiScreenState extends State<NewApiScreen> {
                       Text('Acceso'),
                       Text('Endpoints'),
 
-                      MaterialButton(
-                        minWidth: double.infinity,
-                        onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => const DashboardScreen(),
-                            ),
-                          );
-                        },
-                        color: Theme.of(context).colorScheme.primary,
-                        textColor: Theme.of(context).colorScheme.onPrimary,
-                        disabledColor: AppColors.gray700,
-                        disabledTextColor: AppColors.gray400,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 16,
-                          horizontal: 32,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          'Añadir endpoint',
-                          style: TextStyle(fontSize: AppTextSizes.base), // 16
-                        ),
+                      // Acción secundaria: borde punteado, sin relleno.
+                      _DashedButton(
+                        label: 'Añadir endpoint',
+                        onPressed: () {},
                       ),
 
-                      MaterialButton(
-                        minWidth: double.infinity,
-                        onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => const DashboardScreen(),
-                            ),
-                          );
-                        },
-                        color: Theme.of(context).colorScheme.primary,
-                        textColor: Theme.of(context).colorScheme.onPrimary,
-                        disabledColor: AppColors.gray700,
-                        disabledTextColor: AppColors.gray400,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 16,
-                          horizontal: 32,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          'Crear API',
-                          style: TextStyle(fontSize: AppTextSizes.base), // 16
+                      SizedBox(height: 16),
+
+                      // Acción primaria: relleno morado tipo píldora.
+                      SizedBox(
+                        width: double.infinity,
+                        child: MaterialButton(
+                          onPressed: () {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) => const DashboardScreen(),
+                              ),
+                            );
+                          },
+                          color: Theme.of(context).colorScheme.primary,
+                          textColor: Theme.of(context).colorScheme.onPrimary,
+                          disabledColor: AppColors.gray700,
+                          disabledTextColor: AppColors.gray400,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(28),
+                          ),
+                          child: Text(
+                            'Guardar API',
+                            style: TextStyle(fontSize: AppTextSizes.base), // 16
+                          ),
                         ),
                       ),
                     ],
@@ -233,4 +180,80 @@ class _NewApiScreenState extends State<NewApiScreen> {
       ),
     );
   }
+}
+
+/// Botón de acción secundaria con borde punteado y sin relleno.
+class _DashedButton extends StatelessWidget {
+  const _DashedButton({required this.label, required this.onPressed});
+
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: CustomPaint(
+        painter: const _DashedRRectPainter(color: AppColors.gray600, radius: 12),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onPressed,
+            borderRadius: BorderRadius.circular(12),
+            child: Center(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: AppTextSizes.base,
+                  color: AppColors.gray400,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Dibuja un rectángulo redondeado con borde punteado (Flutter no lo trae).
+class _DashedRRectPainter extends CustomPainter {
+  const _DashedRRectPainter({required this.color, this.radius = 12});
+
+  final Color color;
+  final double radius;
+
+  static const double _dash = 6;
+  static const double _gap = 4;
+  static const double _strokeWidth = 1.5;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = _strokeWidth;
+
+    final outline = Path()
+      ..addRRect(
+        RRect.fromRectAndRadius(Offset.zero & size, Radius.circular(radius)),
+      );
+
+    // Recorre el contorno troceándolo en guiones + espacios.
+    final dashed = Path();
+    for (final metric in outline.computeMetrics()) {
+      double distance = 0;
+      while (distance < metric.length) {
+        final end = (distance + _dash).clamp(0.0, metric.length);
+        dashed.addPath(metric.extractPath(distance, end), Offset.zero);
+        distance += _dash + _gap;
+      }
+    }
+    canvas.drawPath(dashed, paint);
+  }
+
+  @override
+  bool shouldRepaint(_DashedRRectPainter old) =>
+      old.color != color || old.radius != radius;
 }

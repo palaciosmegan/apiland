@@ -5,6 +5,7 @@ class AppColors {
   AppColors._();
 
   static const Color primary = Color(0xFF612DBA);
+  static const Color primaryLight = Color.fromARGB(255, 151, 121, 201);
   static const Color accent = Color(0xFF53FCE5);
   static const Color surface = Color(0xFF1F1B30);
   static const Color deactivated = Color(0xFF777378);
@@ -118,7 +119,7 @@ class AppTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: AppColors.primary, width: 2),
+        borderSide: const BorderSide(color: AppColors.primaryLight, width: 2),
       ),
       disabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
@@ -134,6 +135,17 @@ class AppTheme {
         ),
       ),
       hintStyle: const TextStyle(fontSize: AppTextSizes.sm, color: AppColors.gray500),
+      floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {
+        Color color = AppColors.gray300;
+        if (states.contains(WidgetState.disabled)) {
+          color = AppColors.gray400;
+        } else if (states.contains(WidgetState.error)) {
+          color = const Color(0xFFEF4444); // rojo de validación
+        } else if (states.contains(WidgetState.focused)) {
+          color = AppColors.primaryLight;
+        }
+        return TextStyle(fontSize: AppTextSizes.sm, color: color);
+      }),
       prefixIconColor: WidgetStateColor.resolveWith(
         (states) => states.contains(WidgetState.disabled)
             ? AppColors.gray400

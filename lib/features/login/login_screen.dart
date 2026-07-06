@@ -1,4 +1,4 @@
-import 'package:apiland/features/new_api/new_api_screen.dart';
+import 'package:apiland/features/dashboard/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
 
@@ -79,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       MaterialButton(
                         onPressed: () {
                           Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (context) => const NewApiScreen(title: 'New API',)),
+                            MaterialPageRoute(builder: (context) => const DashboardScreen()),
                           );
                         },
                         color: Theme.of(context).colorScheme.primary,

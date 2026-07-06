@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:apiland/constants/theme/app_theme.dart';
 
 /// FAB flotante (abajo a la derecha) que abre un drawer inferior animado con la
 /// navegación principal de la app.
@@ -12,14 +13,26 @@ class FloatingNavFab extends StatelessWidget {
   final String currentRoute;
 
   /// Rutas que ya tienen pantalla registrada en el MaterialApp.
-  static const Set<String> _implementedRoutes = {'/dashboard'};
+  static const Set<String> _implementedRoutes = {
+    '/dashboard',
+    '/services',
+    '/companies',
+  };
 
   static const List<_NavItem> _items = [
     _NavItem(Icons.home_outlined, 'Dashboard', '/dashboard'),
     _NavItem(Icons.history, 'Log', '/log'),
-    _NavItem(Icons.api_outlined, 'APIs', '/services'),
+    _NavItem(
+      Icons.api_outlined,
+      'APIs',
+      '/services',
+      children: [
+        _NavItem(null, 'Todas las APIs', '/services'),
+      ],
+    ),
     _NavItem(Icons.settings_outlined, 'Ajustes', '/settings'),
     _NavItem(Icons.groups_2, 'Usuarios', '/users'),
+    _NavItem(Icons.business, 'Compañías', '/companies'),
   ];
 
   static const _NavItem _settingsItem = _NavItem(
@@ -49,7 +62,7 @@ class FloatingNavFab extends StatelessWidget {
     // Si ya estamos en la ruta, no navegamos (evita duplicar la ruta).
     if (route == currentRoute) return;
     if (_implementedRoutes.contains(route)) {
-      Navigator.pushReplacementNamed(context, route);
+      Navigator.pushNamed(context, route);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('$route: próximamente')),
@@ -71,11 +84,14 @@ class FloatingNavFab extends StatelessWidget {
 }
 
 class _NavItem {
-  const _NavItem(this.icon, this.label, this.route);
+  const _NavItem(this.icon, this.label, this.route, {this.children = const []});
 
-  final IconData icon;
+  final IconData? icon;
   final String label;
   final String route;
+
+  /// Subitems. Si no está vacío, el tile es expandible (muestra chevron).
+  final List<_NavItem> children;
 }
 
 /// Contenido del drawer inferior, con entrada animada (slide-up + fade).
@@ -155,14 +171,14 @@ class _NavDrawerState extends State<_NavDrawer>
               const SizedBox(height: 16),
               ...widget.items.map((item) => _NavTile(
                     item: item,
-                    active: item.route == widget.currentRoute,
-                    onTap: () => widget.onSelect(item.route),
+                    currentRoute: widget.currentRoute,
+                    onSelect: widget.onSelect,
                   )),
               const Divider(height: 24),
               _NavTile(
                 item: widget.settingsItem,
-                active: widget.settingsItem.route == widget.currentRoute,
-                onTap: () => widget.onSelect(widget.settingsItem.route),
+                currentRoute: widget.currentRoute,
+                onSelect: widget.onSelect,
               ),
               // Safe area inferior.
               SizedBox(height: MediaQuery.of(context).padding.bottom),
@@ -174,22 +190,96 @@ class _NavDrawerState extends State<_NavDrawer>
   }
 }
 
-class _NavTile extends StatelessWidget {
+class _NavTile extends StatefulWidget {
   const _NavTile({
     required this.item,
-    required this.active,
-    required this.onTap,
+    required this.currentRoute,
+    required this.onSelect,
   });
 
   final _NavItem item;
-  final bool active;
-  final VoidCallback onTap;
+  final String currentRoute;
+  final ValueChanged<String> onSelect;
+
+  @override
+  State<_NavTile> createState() => _NavTileState();
+}
+
+class _NavTileState extends State<_NavTile> {
+  bool _expanded = false;
 
   @override
   Widget build(BuildContext context) {
+    final item = widget.item;
+    final hasChildren = item.children.isNotEmpty;
+    return Column(
+      children: [
+        _row(
+          context,
+          icon: item.icon,
+          label: item.label,
+          active: item.route == widget.currentRoute,
+          // Solo los items con hijos muestran chevron (rota ▶ → ▼ al abrir).
+          trailing: hasChildren
+              ? AnimatedRotation(
+                  turns: _expanded ? 0.25 : 0,
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOutCubic,
+                  child: Icon(
+                    Icons.chevron_right,
+                    color: item.route == widget.currentRoute
+                        ? AppColors.primaryLight
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                )
+              : null,
+          onTap: hasChildren
+              ? () => setState(() => _expanded = !_expanded)
+              : () => widget.onSelect(item.route),
+        ),
+        // Subitems (indentados): se despliegan suave con AnimatedSize.
+        if (hasChildren)
+          AnimatedSize(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topCenter,
+            child: AnimatedOpacity(
+              opacity: _expanded ? 1 : 0,
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutCubic,
+              child: _expanded
+                  ? Padding(
+                      padding: const EdgeInsets.only(left: 24),
+                      child: Column(
+                        children: item.children
+                            .map((child) => _row(
+                                  context,
+                                  icon: child.icon,
+                                  label: child.label,
+                                  active: child.route == widget.currentRoute,
+                                  onTap: () => widget.onSelect(child.route),
+                                ))
+                            .toList(),
+                      ),
+                    )
+                  : const SizedBox(width: double.infinity),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _row(
+    BuildContext context, {
+    required IconData? icon,
+    required String label,
+    required bool active,
+    required VoidCallback onTap,
+    Widget? trailing,
+  }) {
     final colors = Theme.of(context).colorScheme;
-    // Activo: color primario. Inactivo: color de texto secundario.
-    final color = active ? colors.primary : colors.onSurfaceVariant;
+    // Activo: texto/icono en primaryLight. Inactivo: color de texto secundario.
+    final color = active ? AppColors.primaryLight : colors.onSurfaceVariant;
     return Container(
       margin: const EdgeInsets.only(bottom: 4),
       decoration: BoxDecoration(
@@ -197,15 +287,15 @@ class _NavTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
-        leading: Icon(item.icon, color: color),
+        leading: icon == null ? null : Icon(icon, color: color),
         title: Text(
-          item.label,
+          label,
           style: TextStyle(
             color: color,
             fontWeight: active ? FontWeight.w600 : FontWeight.w400,
           ),
         ),
-        trailing: Icon(Icons.chevron_right, color: color),
+        trailing: trailing,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         onTap: onTap,
       ),
