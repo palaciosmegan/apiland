@@ -37,6 +37,7 @@ dependencies:
 
   # SF Pro-like typeface (Inter) served via Google Fonts.
   google_fonts: ^6.2.1
+  dio: ^5.10.0
 
 dev_dependencies:
   flutter_test:
