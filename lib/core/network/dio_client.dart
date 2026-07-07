@@ -5,6 +5,7 @@ import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:apiland/core/network/api_constants.dart';
+import 'package:apiland/core/network/token_store.dart';
 
 /// Cliente Dio único y ya configurado para toda la app.
 class DioClient {
@@ -26,7 +27,11 @@ class DioClient {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          final token = dotenv.env['API_BEARER_TOKEN'];
+          // Token de la sesión (login). Fallback al .env para dev antes de
+          // loguearse.
+          final token = TokenStore.hasToken
+              ? TokenStore.accessToken
+              : dotenv.env['API_BEARER_TOKEN'];
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
