@@ -108,6 +108,22 @@ class AppTheme {
       onSurface: AppColors.textPrimary,
     ),
     scaffoldBackgroundColor: AppColors.surface,
+    // Top bar único para toda la app (estilo del dashboard).
+    appBarTheme: const AppBarTheme(
+      backgroundColor: AppColors.secondarySurface,
+      foregroundColor: AppColors.gray50,
+      elevation: 0,
+      centerTitle: true,
+      titleTextStyle: TextStyle(
+        fontSize: AppTextSizes.base,
+        fontWeight: FontWeight.w600,
+        color: AppColors.gray50,
+      ),
+    ),
+    // Botón "atrás" con chevron en vez de la flecha por defecto.
+    actionIconTheme: ActionIconThemeData(
+      backButtonIconBuilder: (context) => const Icon(Icons.chevron_left),
+    ),
     inputDecorationTheme: InputDecorationTheme(
       // 8pt grid: even vertical rhythm inside every field
       contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),

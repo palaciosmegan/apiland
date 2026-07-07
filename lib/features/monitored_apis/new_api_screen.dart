@@ -71,7 +71,6 @@ class _NewApiScreenState extends State<NewApiScreen> {
       behavior: HitTestBehavior.opaque,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.primary,
           title: Text(widget.title),
         ),
         body: SingleChildScrollView(

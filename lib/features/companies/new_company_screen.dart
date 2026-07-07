@@ -70,7 +70,6 @@ class _NewCompanyScreenState extends State<NewCompanyScreen> {
       behavior: HitTestBehavior.opaque,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.primary,
           title: Text(widget.title),
         ),
         body: SingleChildScrollView(

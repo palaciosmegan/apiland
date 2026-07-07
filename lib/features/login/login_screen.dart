@@ -1,6 +1,7 @@
 import 'package:apiland/features/dashboard/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
+import 'package:apiland/core/auth/session.dart';
 import 'package:apiland/core/network/token_store.dart';
 import 'package:apiland/core/utils/validators.dart';
 import 'package:apiland/features/login/data/auth_service.dart';
@@ -45,8 +46,9 @@ class _LoginScreenState extends State<LoginScreen> {
         _emailController.text.trim(),
         _passwordController.text,
       );
-      // Guarda el token para que el interceptor autentique las demás requests.
+      // Guarda el token (para el interceptor) y lee el rol del JWT.
       TokenStore.setToken(result.accessToken);
+      Session.setFromToken(result.accessToken);
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const DashboardScreen()),
@@ -70,7 +72,6 @@ class _LoginScreenState extends State<LoginScreen> {
       behavior: HitTestBehavior.opaque,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: AppColors.secondarySurface,
           title: Text(widget.title),
         ),
         body: SingleChildScrollView(

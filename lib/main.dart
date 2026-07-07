@@ -5,6 +5,7 @@ import 'package:apiland/constants/theme/app_theme.dart';
 import 'package:apiland/features/login/login_screen.dart';
 import 'package:apiland/features/dashboard/dashboard_screen.dart';
 import 'package:apiland/features/companies/companies_screen.dart';
+import 'package:apiland/features/users/users_screen.dart';
 
 
 Future<void> main() async {
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
         // TODO: reemplazar por ServicesScreen cuando exista.
         '/services': (context) => const NewApiScreen(title: 'New API'),
         '/companies': (context) => const CompaniesScreen(),
+        '/users': (context) => const UsersScreen(),
       },
     );
   }

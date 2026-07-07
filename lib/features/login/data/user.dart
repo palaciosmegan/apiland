@@ -1,24 +1,6 @@
-/// Roles posibles de un usuario. `wire` es el valor tal cual viaja en el JSON
-/// (ej. el claim "role" del JWT: "Root", "Admin"…).
-enum UserRole {
-  root('Root'),
-  admin('Admin'),
-  user('User');
+import 'package:apiland/core/auth/user_role.dart';
 
-  const UserRole(this.wire);
-
-  final String wire;
-
-  /// Parsea desde el string del backend, sin importar mayúsculas.
-  /// Nunca queda vacío: cualquier valor nulo o no reconocido cae a [user].
-  static UserRole fromWire(String? value) {
-    if (value == null || value.isEmpty) return UserRole.user;
-    return UserRole.values.firstWhere(
-      (r) => r.wire.toLowerCase() == value.toLowerCase(),
-      orElse: () => UserRole.user,
-    );
-  }
-}
+export 'package:apiland/core/auth/user_role.dart';
 
 class User {
   const User({

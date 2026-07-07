@@ -13,9 +13,6 @@ class DashboardScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        elevation: 0,
-        centerTitle: true,
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

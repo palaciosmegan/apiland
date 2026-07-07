@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
+import 'package:apiland/core/auth/session.dart';
+import 'package:apiland/core/auth/user_role.dart';
 
 /// FAB flotante (abajo a la derecha) que abre un drawer inferior animado con la
 /// navegación principal de la app.
@@ -17,6 +19,7 @@ class FloatingNavFab extends StatelessWidget {
     '/dashboard',
     '/services',
     '/companies',
+    '/users',
   };
 
   static const List<_NavItem> _items = [
@@ -31,11 +34,17 @@ class FloatingNavFab extends StatelessWidget {
       ],
     ),
     _NavItem(Icons.settings_outlined, 'Ajustes', '/settings'),
-    _NavItem(Icons.groups_2, 'Usuarios', '/users'),
-    _NavItem(Icons.business, 'Compañías', '/companies'),
+    _NavItem(Icons.groups_2, 'Usuarios', '/users', minRole: UserRole.root),
+    _NavItem(Icons.business, 'Compañías', '/companies', minRole: UserRole.root),
   ];
 
   void _openDrawer(BuildContext context) {
+    // Filtra los links según el rol de la sesión (jerarquía por rank).
+    final role = Session.role;
+    final visibleItems = _items
+        .where((item) => role.rank >= item.minRole.rank)
+        .toList();
+
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -43,7 +52,7 @@ class FloatingNavFab extends StatelessWidget {
       barrierColor: Colors.black.withValues(alpha: 0.6),
       builder: (_) => _NavDrawer(
         currentRoute: currentRoute,
-        items: _items,
+        items: visibleItems,
         onSelect: (route) => _handleSelect(context, route),
       ),
     );
@@ -77,7 +86,13 @@ class FloatingNavFab extends StatelessWidget {
 }
 
 class _NavItem {
-  const _NavItem(this.icon, this.label, this.route, {this.children = const []});
+  const _NavItem(
+    this.icon,
+    this.label,
+    this.route, {
+    this.children = const [],
+    this.minRole = UserRole.user,
+  });
 
   final IconData? icon;
   final String label;
@@ -85,6 +100,9 @@ class _NavItem {
 
   /// Subitems. Si no está vacío, el tile es expandible (muestra chevron).
   final List<_NavItem> children;
+
+  /// Rol mínimo para ver este link. Se compara por `rank`.
+  final UserRole minRole;
 }
 
 /// Contenido del drawer inferior, con entrada animada (slide-up + fade).
