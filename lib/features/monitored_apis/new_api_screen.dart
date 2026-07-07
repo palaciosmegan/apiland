@@ -1,6 +1,8 @@
 import 'package:apiland/features/dashboard/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
+import 'package:apiland/features/companies/data/company.dart';
+import 'package:apiland/features/companies/data/company_service.dart';
 
 class NewApiScreen extends StatefulWidget {
   const NewApiScreen({super.key, required this.title});
@@ -18,7 +20,41 @@ const List<String> refreshApiIntervalOptions = <String>[
 ];
 
 class _NewApiScreenState extends State<NewApiScreen> {
+  final CompanyService _companyService = CompanyService();
+
   String _intervalDropdownValue = refreshApiIntervalOptions.first;
+
+  List<Company> _companies = [];
+  Company? _selectedCompany;
+  bool _loadingCompanies = true;
+  bool _companiesError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCompanies();
+  }
+
+  Future<void> _loadCompanies() async {
+    setState(() {
+      _loadingCompanies = true;
+      _companiesError = false;
+    });
+    try {
+      final list = await _companyService.getCompanies();
+      if (!mounted) return;
+      setState(() {
+        _companies = list;
+        _loadingCompanies = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _loadingCompanies = false;
+        _companiesError = true;
+      });
+    }
+  }
 
   void intervalDropdownCallback(String? selectedValue) {
     setState(() {
@@ -80,19 +116,49 @@ class _NewApiScreenState extends State<NewApiScreen> {
 
                       SizedBox(height: 16),
 
-                      TextFormField(
-                        keyboardType: TextInputType.text,
-                        style: const TextStyle(
-                          fontSize: AppTextSizes.base,
-                        ), // 16 value text
+                      // Cliente: dropdown poblado con el GET de compañías.
+                      DropdownButtonFormField<Company>(
+                        initialValue: _selectedCompany,
+                        isExpanded: true,
                         decoration: InputDecoration(
                           labelText: "Cliente",
-                          hintText: "Friomamut S.A.C.",
-                          prefixIcon: Icon(Icons.corporate_fare),
+                          hintText: _loadingCompanies
+                              ? "Cargando compañías…"
+                              : _companiesError
+                              ? "Error al cargar (toca refrescar)"
+                              : "Selecciona un cliente",
+                          prefixIcon: const Icon(Icons.corporate_fare),
+                          suffixIcon: _loadingCompanies
+                              ? const Padding(
+                                  padding: EdgeInsets.all(12),
+                                  child: SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  ),
+                                )
+                              : _companiesError
+                              ? IconButton(
+                                  icon: const Icon(Icons.refresh),
+                                  onPressed: _loadCompanies,
+                                )
+                              : null,
                         ),
-                        validator: (value) {
-                          return value!.isEmpty ? 'Ingresa un cliente' : null;
-                        },
+                        items: _companies
+                            .map(
+                              (c) => DropdownMenuItem<Company>(
+                                value: c,
+                                child: Text(c.name),
+                              ),
+                            )
+                            .toList(),
+                        // Deshabilitado mientras carga.
+                        onChanged: _loadingCompanies
+                            ? null
+                            : (company) =>
+                                  setState(() => _selectedCompany = company),
+                        validator: (value) =>
+                            value == null ? 'Selecciona un cliente' : null,
                       ),
 
                       SizedBox(height: 16),

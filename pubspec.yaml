@@ -39,6 +39,9 @@ dependencies:
   google_fonts: ^6.2.1
   dio: ^5.10.0
 
+  # Carga variables desde el archivo .env (token, config, etc.).
+  flutter_dotenv: ^5.2.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -60,6 +63,9 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - .env
 
   # To add assets to your application, add an assets section, like this:
   # assets:

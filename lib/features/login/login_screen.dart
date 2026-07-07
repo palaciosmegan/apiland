@@ -21,7 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
       behavior: HitTestBehavior.opaque,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: AppColors.secondarySurface,
           title: Text(widget.title),
         ),
         body: SingleChildScrollView(

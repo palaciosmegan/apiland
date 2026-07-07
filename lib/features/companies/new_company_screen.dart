@@ -1,6 +1,7 @@
-import 'package:apiland/features/dashboard/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
+import 'package:apiland/features/companies/data/company.dart';
+import 'package:apiland/features/companies/data/company_service.dart';
 
 class NewCompanyScreen extends StatefulWidget {
   const NewCompanyScreen({super.key, required this.title});
@@ -14,11 +15,50 @@ class NewCompanyScreen extends StatefulWidget {
 const List<String> apiTypeList = <String>['Interna', 'Externa'];
 
 class _NewCompanyScreenState extends State<NewCompanyScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final CompanyService _service = CompanyService();
+
   String _typeDropdownValue = apiTypeList.first;
+  bool _saving = false;
+
   void apiTypeDropdownCallback(String? selectedValue) {
     setState(() {
       _typeDropdownValue = selectedValue!;
     });
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    // Valida el form antes de mandar nada al backend.
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _saving = true);
+    try {
+      await _service.createCompany(
+        Company(
+          name: _nameController.text.trim(),
+          tipoCliente: _typeDropdownValue,
+        ),
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Compañía creada')),
+      );
+      Navigator.of(context).pop(true); // vuelve a la lista y la refresca
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al crear la compañía: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
 
   @override
@@ -38,26 +78,18 @@ class _NewCompanyScreenState extends State<NewCompanyScreen> {
           // which avoids the bottom-overflow stripe.
           child: Column(
             children: [
-              SizedBox(height: 64),
-
-              // Text(
-              //   'Iniciar sesión',
-              //   style: TextStyle(
-              //     fontSize: AppTextSizes.xl4, // 24 — top of the type scale
-              //     fontWeight: FontWeight.w600,
-              //     color: AppColors.gray50,
-              //   ),
-              // ),
               SizedBox(height: 32),
 
               Padding(
                 padding: const EdgeInsets.all(24),
                 child: Form(
+                  key: _formKey,
                   child: Column(
                     children: [
                       Text('Información general'),
 
                       TextFormField(
+                        controller: _nameController,
                         keyboardType: TextInputType.text,
                         style: const TextStyle(
                           fontSize: AppTextSizes.base,
@@ -68,7 +100,9 @@ class _NewCompanyScreenState extends State<NewCompanyScreen> {
                           prefixIcon: Icon(Icons.corporate_fare),
                         ),
                         validator: (value) {
-                          return value!.isEmpty ? 'Ingresa un cliente' : null;
+                          return value == null || value.trim().isEmpty
+                              ? 'Ingresa la razón social'
+                              : null;
                         },
                       ),
 
@@ -78,7 +112,7 @@ class _NewCompanyScreenState extends State<NewCompanyScreen> {
                         initialValue: _typeDropdownValue,
                         isExpanded: true,
                         decoration: const InputDecoration(
-                          labelText: "Tipo de API",
+                          labelText: "Tipo",
                           prefixIcon: Icon(Icons.lan),
                         ),
                         items: apiTypeList
@@ -92,29 +126,33 @@ class _NewCompanyScreenState extends State<NewCompanyScreen> {
                         onChanged: apiTypeDropdownCallback,
                       ),
 
-                      MaterialButton(
-                        minWidth: double.infinity,
-                        onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => const DashboardScreen(),
-                            ),
-                          );
-                        },
-                        color: Theme.of(context).colorScheme.primary,
-                        textColor: Theme.of(context).colorScheme.onPrimary,
-                        disabledColor: AppColors.gray700,
-                        disabledTextColor: AppColors.gray400,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 16,
-                          horizontal: 32,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          'Guardar compañía',
-                          style: TextStyle(fontSize: AppTextSizes.base), // 16
+                      SizedBox(height: 24),
+
+                      SizedBox(
+                        width: double.infinity,
+                        child: MaterialButton(
+                          onPressed: _saving ? null : _save,
+                          color: Theme.of(context).colorScheme.primary,
+                          textColor: Theme.of(context).colorScheme.onPrimary,
+                          disabledColor: AppColors.gray700,
+                          disabledTextColor: AppColors.gray400,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(28),
+                          ),
+                          child: _saving
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColors.gray400,
+                                  ),
+                                )
+                              : Text(
+                                  'Guardar compañía',
+                                  style: TextStyle(fontSize: AppTextSizes.base),
+                                ),
                         ),
                       ),
                     ],

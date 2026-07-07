@@ -35,12 +35,6 @@ class FloatingNavFab extends StatelessWidget {
     _NavItem(Icons.business, 'Compañías', '/companies'),
   ];
 
-  static const _NavItem _settingsItem = _NavItem(
-    Icons.logout_outlined,
-    'Cerrar sesión',
-    '/logout',
-  );
-
   void _openDrawer(BuildContext context) {
     showModalBottomSheet<void>(
       context: context,
@@ -50,7 +44,6 @@ class FloatingNavFab extends StatelessWidget {
       builder: (_) => _NavDrawer(
         currentRoute: currentRoute,
         items: _items,
-        settingsItem: _settingsItem,
         onSelect: (route) => _handleSelect(context, route),
       ),
     );
@@ -99,13 +92,11 @@ class _NavDrawer extends StatefulWidget {
   const _NavDrawer({
     required this.currentRoute,
     required this.items,
-    required this.settingsItem,
     required this.onSelect,
   });
 
   final String currentRoute;
   final List<_NavItem> items;
-  final _NavItem settingsItem;
   final ValueChanged<String> onSelect;
 
   @override
@@ -146,43 +137,42 @@ class _NavDrawerState extends State<_NavDrawer>
       opacity: _curve,
       child: SlideTransition(
         position: _slide,
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: colors.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Barra superior (handle) para arrastrar.
-              Center(
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: colors.onSurface.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(2),
+        // Material (no Container) para que los ListTile pinten su ink/fondo
+        // correctamente sobre esta superficie.
+        child: Material(
+          color: colors.surface,
+          clipBehavior: Clip.antiAlias,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          child: SizedBox(
+            width: double.infinity,
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Barra superior (handle) para arrastrar.
+                  Center(
+                    child: Container(
+                      width: 36,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: colors.onSurface.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 16),
+                  ...widget.items.map((item) => _NavTile(
+                        item: item,
+                        currentRoute: widget.currentRoute,
+                        onSelect: widget.onSelect,
+                      )),
+                  // Safe area inferior.
+                  SizedBox(height: MediaQuery.of(context).padding.bottom),
+                ],
               ),
-              const SizedBox(height: 16),
-              ...widget.items.map((item) => _NavTile(
-                    item: item,
-                    currentRoute: widget.currentRoute,
-                    onSelect: widget.onSelect,
-                  )),
-              const Divider(height: 24),
-              _NavTile(
-                item: widget.settingsItem,
-                currentRoute: widget.currentRoute,
-                onSelect: widget.onSelect,
-              ),
-              // Safe area inferior.
-              SizedBox(height: MediaQuery.of(context).padding.bottom),
-            ],
+            ),
           ),
         ),
       ),
@@ -228,7 +218,7 @@ class _NavTileState extends State<_NavTile> {
                   child: Icon(
                     Icons.chevron_right,
                     color: item.route == widget.currentRoute
-                        ? AppColors.primaryLight
+                        ? AppColors.success
                         : Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 )
@@ -279,14 +269,13 @@ class _NavTileState extends State<_NavTile> {
   }) {
     final colors = Theme.of(context).colorScheme;
     // Activo: texto/icono en primaryLight. Inactivo: color de texto secundario.
-    final color = active ? AppColors.primaryLight : colors.onSurfaceVariant;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 4),
-      decoration: BoxDecoration(
-        color: active ? colors.primary.withValues(alpha: 0.1) : Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
-      ),
+    final color = active ? AppColors.primary : colors.onSurfaceVariant;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
       child: ListTile(
+        // El fondo va en el propio ListTile (tileColor + shape), no en un
+        // Container con decoration — así el ink/splash es visible.
+        tileColor: active ? colors.primary.withValues(alpha: 0.1) : null,
         leading: icon == null ? null : Icon(icon, color: color),
         title: Text(
           label,

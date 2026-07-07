@@ -1,3 +1,6 @@
+# Environment / secrets (el token vive aquí — NO commitear)
+.env
+
 # Miscellaneous
 *.class
 *.log

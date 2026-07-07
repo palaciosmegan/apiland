@@ -4,11 +4,18 @@ import 'package:google_fonts/google_fonts.dart';
 class AppColors {
   AppColors._();
 
-  static const Color primary = Color(0xFF612DBA);
-  static const Color primaryLight = Color.fromARGB(255, 151, 121, 201);
+  // static const Color primary = Color(0xFF612DBA);
+  // static const Color primaryLight = Color(0xFF7C5DCB);
+  static const Color primary = Color(0xFF7C5DCB);
+  static const Color primaryLight = Color(0xFF612DBA);
   static const Color accent = Color(0xFF53FCE5);
   static const Color surface = Color(0xFF1F1B30);
+  static const Color secondarySurface = Color(0xFF312E42);
   static const Color deactivated = Color(0xFF777378);
+  static const Color textStandout = Color(0xFFFFFFFF);
+  static const Color textPrimary = Color(0xFFD3D2D7);
+  static const Color textSecondary = Color(0xFF121212);
+  static const Color success = Color(0xFF9DFFAC);
 
   // Tailwind grays
   static const Color gray50 = Color(0xFFF9FAFB);
@@ -69,25 +76,25 @@ class AppTheme {
   // Sizes + colors live here; Inter is layered on top in `dark`.
   static const TextTheme _baseTextTheme = TextTheme(
     // Display
-    displayLarge: TextStyle(fontSize: AppTextSizes.xl9, color: AppColors.gray50),
-    displayMedium: TextStyle(fontSize: AppTextSizes.xl8, color: AppColors.gray50),
-    displaySmall: TextStyle(fontSize: AppTextSizes.xl7, color: AppColors.gray50),
+    displayLarge: TextStyle(fontSize: AppTextSizes.xl9, color: AppColors.textStandout),
+    displayMedium: TextStyle(fontSize: AppTextSizes.xl8, color: AppColors.textStandout),
+    displaySmall: TextStyle(fontSize: AppTextSizes.xl7, color: AppColors.textStandout),
     // Headline
-    headlineLarge: TextStyle(fontSize: AppTextSizes.xl6, color: AppColors.gray50),
-    headlineMedium: TextStyle(fontSize: AppTextSizes.xl5, color: AppColors.gray50),
-    headlineSmall: TextStyle(fontSize: AppTextSizes.xl4, color: AppColors.gray50),
+    headlineLarge: TextStyle(fontSize: AppTextSizes.xl6, color: AppColors.textStandout),
+    headlineMedium: TextStyle(fontSize: AppTextSizes.xl5, color: AppColors.textStandout),
+    headlineSmall: TextStyle(fontSize: AppTextSizes.xl4, color: AppColors.textStandout),
     // Title
-    titleLarge: TextStyle(fontSize: AppTextSizes.xl3, color: AppColors.gray50),
-    titleMedium: TextStyle(fontSize: AppTextSizes.xl2, color: AppColors.gray50),
-    titleSmall: TextStyle(fontSize: AppTextSizes.xl, color: AppColors.gray50),
+    titleLarge: TextStyle(fontSize: AppTextSizes.xl3, color: AppColors.textStandout),
+    titleMedium: TextStyle(fontSize: AppTextSizes.xl2, color: AppColors.textStandout),
+    titleSmall: TextStyle(fontSize: AppTextSizes.xl, color: AppColors.textStandout),
     // Body
-    bodyLarge: TextStyle(fontSize: AppTextSizes.lg, color: AppColors.gray100),
-    bodyMedium: TextStyle(fontSize: AppTextSizes.base, color: AppColors.gray100),
-    bodySmall: TextStyle(fontSize: AppTextSizes.sm, color: AppColors.gray300),
+    bodyLarge: TextStyle(fontSize: AppTextSizes.lg, color: AppColors.textPrimary),
+    bodyMedium: TextStyle(fontSize: AppTextSizes.base, color: AppColors.textPrimary),
+    bodySmall: TextStyle(fontSize: AppTextSizes.sm, color: AppColors.textPrimary),
     // Label
-    labelLarge: TextStyle(fontSize: AppTextSizes.sm, color: AppColors.gray400),
-    labelMedium: TextStyle(fontSize: AppTextSizes.xs, color: AppColors.gray400),
-    labelSmall: TextStyle(fontSize: AppTextSizes.xs, color: AppColors.deactivated),
+    labelLarge: TextStyle(fontSize: AppTextSizes.sm, color: AppColors.textPrimary),
+    labelMedium: TextStyle(fontSize: AppTextSizes.xs, color: AppColors.textPrimary),
+    labelSmall: TextStyle(fontSize: AppTextSizes.xs, color: AppColors.textPrimary),
   );
 
   static ThemeData get dark => ThemeData(
@@ -96,9 +103,9 @@ class AppTheme {
       primary: AppColors.primary,
       secondary: AppColors.accent,
       surface: AppColors.surface,
-      onPrimary: AppColors.gray50,
-      onSecondary: AppColors.gray900,
-      onSurface: AppColors.gray100,
+      onPrimary: AppColors.textPrimary,
+      onSecondary: AppColors.textSecondary,
+      onSurface: AppColors.textPrimary,
     ),
     scaffoldBackgroundColor: AppColors.surface,
     inputDecorationTheme: InputDecorationTheme(
@@ -119,7 +126,7 @@ class AppTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: AppColors.primaryLight, width: 2),
+        borderSide: const BorderSide(color: AppColors.gray300, width: 2),
       ),
       disabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
@@ -142,14 +149,14 @@ class AppTheme {
         } else if (states.contains(WidgetState.error)) {
           color = const Color(0xFFEF4444); // rojo de validación
         } else if (states.contains(WidgetState.focused)) {
-          color = AppColors.primaryLight;
+          color = AppColors.textStandout;
         }
         return TextStyle(fontSize: AppTextSizes.sm, color: color);
       }),
       prefixIconColor: WidgetStateColor.resolveWith(
         (states) => states.contains(WidgetState.disabled)
-            ? AppColors.gray400
-            : AppColors.gray300,
+            ? AppColors.deactivated
+            : AppColors.gray400,
       ),
     ),
     // Inter overlays the family onto the base sizes/colors above.
