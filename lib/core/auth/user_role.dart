@@ -1,10 +1,8 @@
-/// Roles posibles de un usuario. `wire` es el valor tal cual viaja en el JWT
-/// (claim "role": "Root", "Admin"…). `rank` define jerarquía para permisos
-/// (mayor = más privilegios).
 enum UserRole {
-  user('User', 0),
-  admin('Admin', 1),
-  root('Root', 2);
+  viewer('viewer', 0),
+  editor('editor', 1),
+  admin('admin', 2),
+  root('root', 3);
 
   const UserRole(this.wire, this.rank);
 
@@ -14,10 +12,10 @@ enum UserRole {
   /// Parsea desde el string del backend, sin importar mayúsculas.
   /// Nunca queda vacío: cualquier valor nulo o no reconocido cae a [user].
   static UserRole fromWire(String? value) {
-    if (value == null || value.isEmpty) return UserRole.user;
+    if (value == null || value.isEmpty) return UserRole.viewer;
     return UserRole.values.firstWhere(
       (r) => r.wire.toLowerCase() == value.toLowerCase(),
-      orElse: () => UserRole.user,
+      orElse: () => UserRole.viewer,
     );
   }
 }

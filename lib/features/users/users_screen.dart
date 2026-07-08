@@ -3,6 +3,7 @@ import 'package:apiland/constants/theme/app_theme.dart';
 import 'package:apiland/core/network/api_error.dart';
 import 'package:apiland/core/widgets/error_state.dart';
 import 'package:apiland/core/widgets/floating_nav_fab.dart';
+import 'package:apiland/core/widgets/role_badge.dart';
 import 'package:apiland/features/login/data/user.dart';
 import 'package:apiland/features/users/data/user_service.dart';
 import 'package:apiland/features/users/new_user_screen.dart';
@@ -103,7 +104,7 @@ class _UsersScreenState extends State<UsersScreen> {
                       ].join(' · '),
                       style: const TextStyle(color: AppColors.textPrimary),
                     ),
-                    trailing: _RoleBadge(role: u.role),
+                    trailing: RoleBadge(role: u.role),
                   ),
                 );
               },
@@ -113,31 +114,6 @@ class _UsersScreenState extends State<UsersScreen> {
       ),
       floatingActionButton: const FloatingNavFab(currentRoute: '/users'),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-    );
-  }
-}
-
-/// Chip con el rol del usuario.
-class _RoleBadge extends StatelessWidget {
-  const _RoleBadge({required this.role});
-
-  final UserRole role;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: AppColors.success,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        role.wire,
-        style: const TextStyle(
-          fontSize: AppTextSizes.xs,
-          color: AppColors.textSecondary,
-        ),
-      ),
     );
   }
 }

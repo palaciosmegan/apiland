@@ -4,10 +4,20 @@ import 'package:google_fonts/google_fonts.dart';
 class AppColors {
   AppColors._();
 
-  // static const Color primary = Color(0xFF612DBA);
-  // static const Color primaryLight = Color(0xFF7C5DCB);
-  static const Color primary = Color(0xFF7C5DCB);
-  static const Color primaryLight = Color(0xFF612DBA);
+  // static const Color primary100 = Color(0xFFA99BE1);
+  // static const Color primary200 = Color(0xFF9A87DA);
+  // static const Color primary300 = Color(0xFF8A72D3);
+  // static const Color primary400 = Color(0xFF7C5DCB);
+  // static const Color primary500 = Color(0xFF6E47C3);
+  // static const Color primary600 = Color(0xFF612DBA);
+
+  static const Color primary100 = Color(0xFFDDD3FF);
+  static const Color primary200 = Color(0xFFD6CAFF);
+  static const Color primary300 = Color(0xFFD0C1FF);
+  static const Color primary400 = Color(0xFFCAB8FF);
+  static const Color primary500 = Color(0xFFC3AFFF);
+  static const Color primary600 = Color(0xFFBDA6FF);
+
   static const Color accent = Color(0xFF53FCE5);
   static const Color surface = Color(0xFF1F1B30);
   static const Color secondarySurface = Color(0xFF312E42);
@@ -15,9 +25,31 @@ class AppColors {
   static const Color textStandout = Color(0xFFFFFFFF);
   static const Color textPrimary = Color(0xFFD3D2D7);
   static const Color textSecondary = Color(0xFF121212);
-  static const Color success = Color(0xFF9DFFAC);
+
+  static const Color green100 = Color(0xFFB8FFC1);
+  static const Color green200 = Color(0xFF9DFFAC);
+  static const Color green300 = Color(0xFF7DFF95);
+  static const Color green400 = Color(0xFF22C55E);
   static const Color error = Color(0xFFEF4444);
-  static const Color greenAccent = Color(0xFF22C55E);
+
+  static const Color info100 = Color(0xFFB9E4FF);
+  static const Color info200 = Color(0xFFA1DBFF);
+  static const Color info300 = Color(0xFF87D1FF);
+
+  static const Color orange100 = Color(0xFFFFD194);
+  static const Color orange200 = Color(0xFFFFC77A);
+  static const Color orange300 = Color(0xFFFFBC5E);
+
+  // ── Semánticos (uso, no primitivos) ──────────────────────────────────
+  // Cards claras sobre el fondo oscuro (dashboard).
+  static const Color cardSurface = secondarySurface; // fondo de card clara
+  static const Color onCard = textStandout; // texto fuerte sobre card clara
+  static const Color onCardMuted = gray400; // texto tenue sobre card clara
+  // Pills / badges oscuros.
+  static const Color badgeSurface = orange300;
+  static const Color onBadge = textSecondary;
+  // Texto tenue sobre superficie oscura.
+  static const Color textMuted = gray400;
 
   // Tailwind grays
   static const Color gray50 = Color(0xFFF9FAFB);
@@ -102,10 +134,10 @@ class AppTheme {
   static ThemeData get dark => ThemeData(
     brightness: Brightness.dark,
     colorScheme: const ColorScheme.dark(
-      primary: AppColors.primary,
+      primary: AppColors.primary400,
       secondary: AppColors.accent,
       surface: AppColors.surface,
-      onPrimary: AppColors.textPrimary,
+      onPrimary: AppColors.textSecondary,
       onSecondary: AppColors.textSecondary,
       onSurface: AppColors.textPrimary,
     ),
@@ -125,6 +157,34 @@ class AppTheme {
     // Botón "atrás" con chevron en vez de la flecha por defecto.
     actionIconTheme: ActionIconThemeData(
       backButtonIconBuilder: (context) => const Icon(Icons.chevron_left),
+    ),
+    // Botón relleno (primario): colores EXPLÍCITOS, no hereda onPrimary.
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: AppColors.primary400,
+        foregroundColor: AppColors.textSecondary,
+        disabledBackgroundColor: AppColors.gray700,
+        disabledForegroundColor: AppColors.gray400,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        textStyle: GoogleFonts.inter(
+          fontSize: AppTextSizes.base,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    ),
+    // Botón outline (secundario).
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.textStandout,
+        side: const BorderSide(color: AppColors.gray500),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        textStyle: GoogleFonts.inter(
+          fontSize: AppTextSizes.base,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       // 8pt grid: even vertical rhythm inside every field

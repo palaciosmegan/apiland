@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
 import 'package:apiland/core/auth/auth_manager.dart';
 import 'package:apiland/core/auth/session.dart';
+import 'package:apiland/core/widgets/app_button.dart';
 import 'package:apiland/core/widgets/floating_nav_fab.dart';
+import 'package:apiland/core/widgets/role_badge.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -30,13 +32,13 @@ class ProfileScreen extends StatelessWidget {
             // Avatar con iniciales.
             CircleAvatar(
               radius: 44,
-              backgroundColor: AppColors.primary.withValues(alpha: 0.25),
+              backgroundColor: AppColors.primary400.withValues(alpha: 0.25),
               child: Text(
                 _initials,
                 style: const TextStyle(
                   fontSize: AppTextSizes.xl2,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primaryLight,
+                  color: AppColors.primary600,
                 ),
               ),
             ),
@@ -50,7 +52,7 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            _RoleBadge(role: Session.role.wire),
+            RoleBadge(role: Session.role),
 
             const SizedBox(height: 32),
 
@@ -89,22 +91,9 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Cerrar sesión.
-            SizedBox(
-              width: double.infinity,
-              child: MaterialButton(
-                onPressed: () => AuthManager.logout(),
-                color: AppColors.error.withValues(alpha: 0.12),
-                textColor: AppColors.error,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  'Cerrar sesión',
-                  style: TextStyle(fontSize: AppTextSizes.base),
-                ),
-              ),
+            DangerButton(
+              label: 'Cerrar sesión',
+              onPressed: () => AuthManager.logout(),
             ),
           ],
         ),
@@ -135,26 +124,3 @@ class _FieldLabel extends StatelessWidget {
   }
 }
 
-class _RoleBadge extends StatelessWidget {
-  const _RoleBadge({required this.role});
-
-  final String role;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        role,
-        style: const TextStyle(
-          fontSize: AppTextSizes.xs,
-          color: AppColors.primaryLight,
-        ),
-      ),
-    );
-  }
-}

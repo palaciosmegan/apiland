@@ -4,6 +4,7 @@ import 'package:apiland/constants/theme/app_theme.dart';
 import 'package:apiland/core/auth/auth_manager.dart';
 import 'package:apiland/core/network/api_error.dart';
 import 'package:apiland/core/utils/validators.dart';
+import 'package:apiland/core/widgets/app_button.dart';
 import 'package:apiland/features/login/data/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -155,32 +156,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       SizedBox(height: 24),
 
-                      MaterialButton(
-                        onPressed: _loading ? null : _login,
-                        color: Theme.of(context).colorScheme.primary,
-                        textColor: Theme.of(context).colorScheme.onPrimary,
-                        disabledColor: AppColors.gray700,
-                        disabledTextColor: AppColors.gray400,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 16,
-                          horizontal: 32,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: _loading
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: AppColors.gray400,
-                                ),
-                              )
-                            : Text(
-                                'Ingresar',
-                                style: TextStyle(fontSize: AppTextSizes.base),
-                              ),
+                      PrimaryButton(
+                        label: 'Ingresar',
+                        loading: _loading,
+                        onPressed: _login,
                       ),
                     ],
                   ),

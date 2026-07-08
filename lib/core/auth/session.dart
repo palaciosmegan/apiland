@@ -11,7 +11,7 @@ class Session {
   static const String _nameClaim =
       'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name';
 
-  static UserRole _role = UserRole.user;
+  static UserRole _role = UserRole.viewer;
   static String _name = '';
   static String _email = '';
 
@@ -31,7 +31,7 @@ class Session {
   static void setEmail(String email) => _email = email;
 
   static void clear() {
-    _role = UserRole.user;
+    _role = UserRole.viewer;
     _name = '';
     _email = '';
   }

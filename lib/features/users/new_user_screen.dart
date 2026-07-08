@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
 import 'package:apiland/core/network/api_error.dart';
 import 'package:apiland/core/utils/validators.dart';
+import 'package:apiland/core/widgets/app_button.dart';
 import 'package:apiland/features/login/data/user.dart';
 import 'package:apiland/features/users/data/user_service.dart';
 
@@ -21,7 +22,7 @@ class _NewUserScreenState extends State<NewUserScreen> {
   final _passwordController = TextEditingController();
   final UserService _service = UserService();
 
-  UserRole _role = UserRole.user;
+  UserRole _role = UserRole.viewer;
   bool _saving = false;
 
   @override
@@ -162,37 +163,15 @@ class _NewUserScreenState extends State<NewUserScreen> {
                           ),
                         )
                         .toList(),
-                    onChanged: (r) => setState(() => _role = r ?? UserRole.user),
+                    onChanged: (r) => setState(() => _role = r ?? UserRole.viewer),
                   ),
 
                   const SizedBox(height: 24),
 
-                  SizedBox(
-                    width: double.infinity,
-                    child: MaterialButton(
-                      onPressed: _saving ? null : _save,
-                      color: Theme.of(context).colorScheme.primary,
-                      textColor: Theme.of(context).colorScheme.onPrimary,
-                      disabledColor: AppColors.gray700,
-                      disabledTextColor: AppColors.gray400,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      child: _saving
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppColors.gray400,
-                              ),
-                            )
-                          : const Text(
-                              'Guardar usuario',
-                              style: TextStyle(fontSize: AppTextSizes.base),
-                            ),
-                    ),
+                  PrimaryButton(
+                    label: 'Guardar usuario',
+                    loading: _saving,
+                    onPressed: _save,
                   ),
                 ],
               ),

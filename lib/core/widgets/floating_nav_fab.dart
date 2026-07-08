@@ -33,9 +33,9 @@ class FloatingNavFab extends StatelessWidget {
         _NavItem(null, 'Todas las APIs', '/services'),
       ],
     ),
-    _NavItem(Icons.settings_outlined, 'Ajustes', '/settings'),
-    _NavItem(Icons.groups_2, 'Usuarios', '/users', minRole: UserRole.root),
+    _NavItem(Icons.groups_2, 'Usuarios', '/users', minRole: UserRole.admin),
     _NavItem(Icons.business, 'Compañías', '/companies', minRole: UserRole.root),
+    _NavItem(Icons.settings_outlined, 'Ajustes', '/settings'),
   ];
 
   void _openDrawer(BuildContext context) {
@@ -91,7 +91,7 @@ class _NavItem {
     this.label,
     this.route, {
     this.children = const [],
-    this.minRole = UserRole.user,
+    this.minRole = UserRole.viewer,
   });
 
   final IconData? icon;
@@ -236,7 +236,7 @@ class _NavTileState extends State<_NavTile> {
                   child: Icon(
                     Icons.chevron_right,
                     color: item.route == widget.currentRoute
-                        ? AppColors.success
+                        ? AppColors.green200
                         : Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 )
@@ -287,7 +287,7 @@ class _NavTileState extends State<_NavTile> {
   }) {
     final colors = Theme.of(context).colorScheme;
     // Activo: texto/icono en primaryLight. Inactivo: color de texto secundario.
-    final color = active ? AppColors.primary : colors.onSurfaceVariant;
+    final color = active ? AppColors.primary400 : colors.onSurfaceVariant;
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: ListTile(

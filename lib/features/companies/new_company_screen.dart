@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
 import 'package:apiland/core/network/api_error.dart';
+import 'package:apiland/core/widgets/app_button.dart';
 import 'package:apiland/features/companies/data/company.dart';
 import 'package:apiland/features/companies/data/company_service.dart';
 
@@ -128,32 +129,10 @@ class _NewCompanyScreenState extends State<NewCompanyScreen> {
 
                       SizedBox(height: 24),
 
-                      SizedBox(
-                        width: double.infinity,
-                        child: MaterialButton(
-                          onPressed: _saving ? null : _save,
-                          color: Theme.of(context).colorScheme.primary,
-                          textColor: Theme.of(context).colorScheme.onPrimary,
-                          disabledColor: AppColors.gray700,
-                          disabledTextColor: AppColors.gray400,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(28),
-                          ),
-                          child: _saving
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: AppColors.gray400,
-                                  ),
-                                )
-                              : Text(
-                                  'Guardar compañía',
-                                  style: TextStyle(fontSize: AppTextSizes.base),
-                                ),
-                        ),
+                      PrimaryButton(
+                        label: 'Guardar compañía',
+                        loading: _saving,
+                        onPressed: _save,
                       ),
                     ],
                   ),
