@@ -29,9 +29,7 @@ class FloatingNavFab extends StatelessWidget {
       Icons.api_outlined,
       'APIs',
       '/services',
-      children: [
-        _NavItem(null, 'Todas las APIs', '/services'),
-      ],
+      children: [_NavItem(null, 'Todas las APIs', '/services')],
     ),
     _NavItem(Icons.groups_2, 'Usuarios', '/users', minRole: UserRole.admin),
     _NavItem(Icons.business, 'Compañías', '/companies', minRole: UserRole.root),
@@ -66,9 +64,9 @@ class FloatingNavFab extends StatelessWidget {
     if (_implementedRoutes.contains(route)) {
       Navigator.pushNamed(context, route);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$route: próximamente')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('$route: próximamente')));
     }
   }
 
@@ -77,9 +75,10 @@ class FloatingNavFab extends StatelessWidget {
     // Padding con el safe area inferior para no solaparse con la barra del sistema.
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-      child: FloatingActionButton.small(
+      child: FloatingActionButton.extended(
         onPressed: () => _openDrawer(context),
-        child: const Icon(Icons.menu),
+        label: const Text('Menú', style: TextStyle(fontSize: AppTextSizes.xs, fontWeight: FontWeight.w600)),
+        icon: const Icon(Icons.menu),
       ),
     );
   }
@@ -181,11 +180,13 @@ class _NavDrawerState extends State<_NavDrawer>
                     ),
                   ),
                   const SizedBox(height: 16),
-                  ...widget.items.map((item) => _NavTile(
-                        item: item,
-                        currentRoute: widget.currentRoute,
-                        onSelect: widget.onSelect,
-                      )),
+                  ...widget.items.map(
+                    (item) => _NavTile(
+                      item: item,
+                      currentRoute: widget.currentRoute,
+                      onSelect: widget.onSelect,
+                    ),
+                  ),
                   // Safe area inferior.
                   SizedBox(height: MediaQuery.of(context).padding.bottom),
                 ],
@@ -227,7 +228,6 @@ class _NavTileState extends State<_NavTile> {
           icon: item.icon,
           label: item.label,
           active: item.route == widget.currentRoute,
-          // Solo los items con hijos muestran chevron (rota ▶ → ▼ al abrir).
           trailing: hasChildren
               ? AnimatedRotation(
                   turns: _expanded ? 0.25 : 0,
@@ -260,13 +260,15 @@ class _NavTileState extends State<_NavTile> {
                       padding: const EdgeInsets.only(left: 24),
                       child: Column(
                         children: item.children
-                            .map((child) => _row(
-                                  context,
-                                  icon: child.icon,
-                                  label: child.label,
-                                  active: child.route == widget.currentRoute,
-                                  onTap: () => widget.onSelect(child.route),
-                                ))
+                            .map(
+                              (child) => _row(
+                                context,
+                                icon: child.icon,
+                                label: child.label,
+                                active: child.route == widget.currentRoute,
+                                onTap: () => widget.onSelect(child.route),
+                              ),
+                            )
                             .toList(),
                       ),
                     )

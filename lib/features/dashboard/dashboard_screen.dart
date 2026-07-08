@@ -83,7 +83,7 @@ class DashboardScreen extends StatelessWidget {
         ),
       ),
       floatingActionButton: const FloatingNavFab(currentRoute: '/dashboard'),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

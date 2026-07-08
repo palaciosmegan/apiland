@@ -1,3 +1,4 @@
+import 'package:apiland/core/widgets/app_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
 import 'package:apiland/core/network/api_error.dart';
@@ -49,15 +50,15 @@ class _NewCompanyScreenState extends State<NewCompanyScreen> {
         ),
       );
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Compañía creada')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Compañía creada')));
       Navigator.of(context).pop(true); // vuelve a la lista y la refresca
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(apiErrorMessage(e))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(apiErrorMessage(e))));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -71,16 +72,12 @@ class _NewCompanyScreenState extends State<NewCompanyScreen> {
       // opaque: registra el toque también en zonas "vacías" del fondo.
       behavior: HitTestBehavior.opaque,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
+        appBar: AppBar(title: Text(widget.title)),
         body: SingleChildScrollView(
           // Scrolls when content exceeds the viewport (small screens / keyboard open),
           // which avoids the bottom-overflow stripe.
           child: Column(
             children: [
-              SizedBox(height: 32),
-
               Padding(
                 padding: const EdgeInsets.all(24),
                 child: Form(
@@ -88,6 +85,8 @@ class _NewCompanyScreenState extends State<NewCompanyScreen> {
                   child: Column(
                     children: [
                       Text('Información general'),
+
+                      SizedBox(height: 16),
 
                       TextFormField(
                         controller: _nameController,
@@ -109,22 +108,13 @@ class _NewCompanyScreenState extends State<NewCompanyScreen> {
 
                       SizedBox(height: 16),
 
-                      DropdownButtonFormField<String>(
-                        initialValue: _typeDropdownValue,
-                        isExpanded: true,
-                        decoration: const InputDecoration(
-                          labelText: "Tipo",
-                          prefixIcon: Icon(Icons.lan),
-                        ),
-                        items: apiTypeList
-                            .map(
-                              (value) => DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              ),
-                            )
-                            .toList(),
+                      AppDropdown<String>(
+                        value: _typeDropdownValue,
+                        items: apiTypeList,
+                        itemLabel: (item) => item,
                         onChanged: apiTypeDropdownCallback,
+                        label: "Tipo",
+                        prefixIcon: Icons.lan,
                       ),
 
                       SizedBox(height: 24),

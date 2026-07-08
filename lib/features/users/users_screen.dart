@@ -113,7 +113,7 @@ class _UsersScreenState extends State<UsersScreen> {
         },
       ),
       floatingActionButton: const FloatingNavFab(currentRoute: '/users'),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

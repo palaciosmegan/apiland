@@ -1,3 +1,6 @@
+import 'package:apiland/core/widgets/app_dropdown.dart';
+import 'package:apiland/features/companies/data/company.dart';
+import 'package:apiland/features/companies/data/company_service.dart';
 import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
 import 'package:apiland/core/network/api_error.dart';
@@ -21,6 +24,39 @@ class _NewUserScreenState extends State<NewUserScreen> {
   final _positionController = TextEditingController();
   final _passwordController = TextEditingController();
   final UserService _service = UserService();
+    final CompanyService _companyService = CompanyService();
+
+  List<Company> _companies = [];
+  Company? _selectedCompany;
+  bool _loadingCompanies = true;
+  bool _companiesError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCompanies();
+  }
+
+  Future<void> _loadCompanies() async {
+    setState(() {
+      _loadingCompanies = true;
+      _companiesError = false;
+    });
+    try {
+      final list = await _companyService.getCompanies();
+      if (!mounted) return;
+      setState(() {
+        _companies = list;
+        _loadingCompanies = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _loadingCompanies = false;
+        _companiesError = true;
+      });
+    }
+  }
 
   UserRole _role = UserRole.viewer;
   bool _saving = false;
@@ -51,15 +87,15 @@ class _NewUserScreenState extends State<NewUserScreen> {
         ),
       );
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usuario creado')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Usuario creado')));
       Navigator.of(context).pop(true); // vuelve a la lista y refresca
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(apiErrorMessage(e))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(apiErrorMessage(e))));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -132,6 +168,27 @@ class _NewUserScreenState extends State<NewUserScreen> {
 
                   const SizedBox(height: 16),
 
+                  AppDropdown<Company>(
+                    value: _selectedCompany,
+                    items: _companies,
+                    itemLabel: (item) => item.name,
+                    onChanged: _loadingCompanies
+                        ? null
+                        : (company) =>
+                              setState(() => _selectedCompany = company),
+                    label: "Compañía",
+                    prefixIcon: Icons.corporate_fare,
+                    validator: (value) =>
+                        value == null ? 'Selecciona un cliente' : null,
+                    hint: _loadingCompanies
+                        ? "Cargando compañías…"
+                        : _companiesError
+                        ? "Error al cargar"
+                        : "Selecciona un cliente",
+                  ),
+
+                  const SizedBox(height: 16),
+
                   TextFormField(
                     controller: _passwordController,
                     obscureText: true,
@@ -140,32 +197,45 @@ class _NewUserScreenState extends State<NewUserScreen> {
                       labelText: 'Contraseña',
                       prefixIcon: Icon(Icons.lock),
                     ),
-                    validator: (v) =>
-                        Validators.required(v, message: 'Ingresa la contraseña'),
+                    validator: (v) => Validators.required(
+                      v,
+                      message: 'Ingresa la contraseña',
+                    ),
                   ),
 
                   const SizedBox(height: 16),
 
-                  DropdownButtonFormField<UserRole>(
-                    initialValue: _role,
-                    isExpanded: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Rol',
-                      prefixIcon: Icon(Icons.shield_outlined),
-                    ),
-                    // El backend solo permite crear 'admin' o 'user' (root no).
+                  AppDropdown<UserRole>(
+                    value: _role,
                     items: UserRole.values
                         .where((r) => r != UserRole.root)
-                        .map(
-                          (r) => DropdownMenuItem<UserRole>(
-                            value: r,
-                            child: Text(r.wire),
-                          ),
-                        )
                         .toList(),
-                    onChanged: (r) => setState(() => _role = r ?? UserRole.viewer),
+                    itemLabel: (item) => item.wire,
+                    onChanged: (r) =>
+                        setState(() => _role = r ?? UserRole.viewer),
+                    label: 'Rol',
+                    prefixIcon: Icons.shield_outlined,
                   ),
 
+                  // DropdownButtonFormField<UserRole>(
+                  //   initialValue: _role,
+                  //   isExpanded: true,
+                  //   decoration: const InputDecoration(
+                  //     labelText: 'Rol',
+                  //     prefixIcon: Icon(Icons.shield_outlined),
+                  //   ),
+                  //   // El backend solo permite crear 'admin' o 'user' (root no).
+                  //   items: UserRole.values
+                  //       .where((r) => r != UserRole.root)
+                  //       .map(
+                  //         (r) => DropdownMenuItem<UserRole>(
+                  //           value: r,
+                  //           child: Text(r.wire),
+                  //         ),
+                  //       )
+                  //       .toList(),
+                  //   onChanged: (r) => setState(() => _role = r ?? UserRole.viewer),
+                  // ),
                   const SizedBox(height: 24),
 
                   PrimaryButton(

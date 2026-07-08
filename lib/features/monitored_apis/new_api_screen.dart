@@ -1,3 +1,4 @@
+import 'package:apiland/core/widgets/app_dropdown.dart';
 import 'package:apiland/features/dashboard/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
@@ -71,25 +72,13 @@ class _NewApiScreenState extends State<NewApiScreen> {
       // opaque: registra el toque también en zonas "vacías" del fondo.
       behavior: HitTestBehavior.opaque,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
+        appBar: AppBar(title: Text(widget.title)),
         body: SingleChildScrollView(
           // Scrolls when content exceeds the viewport (small screens / keyboard open),
           // which avoids the bottom-overflow stripe.
           child: Column(
             children: [
-              SizedBox(height: 64),
-
-              // Text(
-              //   'Iniciar sesión',
-              //   style: TextStyle(
-              //     fontSize: AppTextSizes.xl4, // 24 — top of the type scale
-              //     fontWeight: FontWeight.w600,
-              //     color: AppColors.gray50,
-              //   ),
-              // ),
-              SizedBox(height: 32),
+              SizedBox(height: 16),
 
               Padding(
                 padding: const EdgeInsets.all(24),
@@ -97,6 +86,8 @@ class _NewApiScreenState extends State<NewApiScreen> {
                   child: Column(
                     children: [
                       Text('Información general'),
+
+                      SizedBox(height: 16),
 
                       TextFormField(
                         keyboardType: TextInputType.emailAddress,
@@ -116,51 +107,69 @@ class _NewApiScreenState extends State<NewApiScreen> {
 
                       SizedBox(height: 16),
 
-                      // Cliente: dropdown poblado con el GET de compañías.
-                      DropdownButtonFormField<Company>(
-                        initialValue: _selectedCompany,
-                        isExpanded: true,
-                        decoration: InputDecoration(
-                          labelText: "Cliente",
-                          hintText: _loadingCompanies
-                              ? "Cargando compañías…"
-                              : _companiesError
-                              ? "Error al cargar (toca refrescar)"
-                              : "Selecciona un cliente",
-                          prefixIcon: const Icon(Icons.corporate_fare),
-                          suffixIcon: _loadingCompanies
-                              ? const Padding(
-                                  padding: EdgeInsets.all(12),
-                                  child: SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
-                                  ),
-                                )
-                              : _companiesError
-                              ? IconButton(
-                                  icon: const Icon(Icons.refresh),
-                                  onPressed: _loadCompanies,
-                                )
-                              : null,
-                        ),
-                        items: _companies
-                            .map(
-                              (c) => DropdownMenuItem<Company>(
-                                value: c,
-                                child: Text(c.name),
-                              ),
-                            )
-                            .toList(),
-                        // Deshabilitado mientras carga.
+                      AppDropdown<Company>(
+                        value: _selectedCompany,
+                        items: _companies,
+                        itemLabel: (item) => item.name,
                         onChanged: _loadingCompanies
                             ? null
                             : (company) =>
                                   setState(() => _selectedCompany = company),
+                        label: "Cliente",
+                        prefixIcon: Icons.corporate_fare,
                         validator: (value) =>
                             value == null ? 'Selecciona un cliente' : null,
+                        hint: _loadingCompanies
+                            ? "Cargando compañías…"
+                            : _companiesError
+                            ? "Error al cargar"
+                            : "Selecciona un cliente",
                       ),
 
+                      // Cliente: dropdown poblado con el GET de compañías.
+                      // DropdownButtonFormField<Company>(
+                      //   initialValue: _selectedCompany,
+                      //   isExpanded: true,
+                      //   decoration: InputDecoration(
+                      //     labelText: "Cliente",
+                      //     hintText: _loadingCompanies
+                      //         ? "Cargando compañías…"
+                      //         : _companiesError
+                      //         ? "Error al cargar (toca refrescar)"
+                      //         : "Selecciona un cliente",
+                      //     prefixIcon: const Icon(Icons.corporate_fare),
+                      //     suffixIcon: _loadingCompanies
+                      //         ? const Padding(
+                      //             padding: EdgeInsets.all(12),
+                      //             child: SizedBox(
+                      //               width: 16,
+                      //               height: 16,
+                      //               child: CircularProgressIndicator(strokeWidth: 2),
+                      //             ),
+                      //           )
+                      //         : _companiesError
+                      //         ? IconButton(
+                      //             icon: const Icon(Icons.refresh),
+                      //             onPressed: _loadCompanies,
+                      //           )
+                      //         : null,
+                      //   ),
+                      //   items: _companies
+                      //       .map(
+                      //         (c) => DropdownMenuItem<Company>(
+                      //           value: c,
+                      //           child: Text(c.name, style: Theme.of(context).textTheme.bodySmall,),
+                      //         ),
+                      //       )
+                      //       .toList(),
+                      //   // Deshabilitado mientras carga.
+                      //   onChanged: _loadingCompanies
+                      //       ? null
+                      //       : (company) =>
+                      //             setState(() => _selectedCompany = company),
+                      //   validator: (value) =>
+                      //       value == null ? 'Selecciona un cliente' : null,
+                      // ),
                       SizedBox(height: 16),
 
                       TextFormField(
@@ -180,34 +189,41 @@ class _NewApiScreenState extends State<NewApiScreen> {
 
                       SizedBox(height: 16),
 
-                      DropdownButtonFormField<String>(
-                        initialValue: _intervalDropdownValue,
-                        isExpanded: true,
-                        decoration: const InputDecoration(
-                          labelText: "Intervalo",
-                          prefixIcon: Icon(Icons.timer),
-                        ),
-                        items: refreshApiIntervalOptions
-                            .map(
-                              (value) => DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              ),
-                            )
-                            .toList(),
+                      AppDropdown<String>(
+                        value: _intervalDropdownValue,
+                        items: refreshApiIntervalOptions,
+                        itemLabel: (item) => item,
                         onChanged: intervalDropdownCallback,
+                        label: "Intervalo",
+                        prefixIcon: Icons.timer,
+                        validator: (value) =>
+                            value == null ? 'Selecciona un cliente' : null,
                       ),
 
+                      // DropdownButtonFormField<String>(
+                      //   initialValue: _intervalDropdownValue,
+                      //   isExpanded: true,
+                      //   decoration: const InputDecoration(
+                      //     labelText: "Intervalo",
+                      //     prefixIcon: Icon(Icons.timer),
+                      //   ),
+                      //   items: refreshApiIntervalOptions
+                      //       .map(
+                      //         (value) => DropdownMenuItem<String>(
+                      //           value: value,
+                      //           child: Text(value),
+                      //         ),
+                      //       )
+                      //       .toList(),
+                      //   onChanged: intervalDropdownCallback,
+                      // ),
                       SizedBox(height: 24),
 
                       Text('Acceso'),
                       Text('Endpoints'),
 
                       // Acción secundaria: borde punteado, sin relleno.
-                      _DashedButton(
-                        label: 'Añadir endpoint',
-                        onPressed: () {},
-                      ),
+                      _DashedButton(label: 'Añadir endpoint', onPressed: () {}),
 
                       SizedBox(height: 16),
 
@@ -247,7 +263,10 @@ class _DashedButton extends StatelessWidget {
       width: double.infinity,
       height: 56,
       child: CustomPaint(
-        painter: const _DashedRRectPainter(color: AppColors.gray600, radius: 12),
+        painter: const _DashedRRectPainter(
+          color: AppColors.gray600,
+          radius: 12,
+        ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(

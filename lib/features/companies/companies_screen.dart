@@ -106,7 +106,7 @@ class _CompaniesScreenState extends State<CompaniesScreen> {
         },
       ),
       floatingActionButton: const FloatingNavFab(currentRoute: '/companies'),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
