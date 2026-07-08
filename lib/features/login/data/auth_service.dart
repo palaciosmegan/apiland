@@ -25,5 +25,17 @@ class AuthService {
     return AuthResult.fromJson(res.data as Map<String, dynamic>);
   }
 
+  // POST /api/auth/refresh-token → renueva los tokens con el refresh token.
+  Future<AuthResult> refresh({
+    required String userId,
+    required String refreshToken,
+  }) async {
+    final res = await _dio.post(
+      '$_path/refresh-token',
+      data: {'userId': userId, 'refreshToken': refreshToken},
+    );
+    return AuthResult.fromJson(res.data as Map<String, dynamic>);
+  }
+
   // GET /api/auth/list → lista de usuarios (solo root).
 }

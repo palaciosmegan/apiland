@@ -46,6 +46,6 @@ class User {
     'email': email,
     'position': position,
     'password': password ?? '',
-    'role': role.wire,
+    'role': role.wire.toLowerCase(),
   };
 }

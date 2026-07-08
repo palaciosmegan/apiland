@@ -17,3 +17,11 @@ Map<String, dynamic> decodeJwtPayload(String token) {
     return {};
   }
 }
+
+DateTime? jwtExpiry(String token) {
+  final exp = decodeJwtPayload(token)['exp'];
+  if (exp is int) {
+    return DateTime.fromMillisecondsSinceEpoch(exp * 1000, isUtc: true);
+  }
+  return null;
+}

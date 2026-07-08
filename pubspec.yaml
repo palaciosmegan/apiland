@@ -42,6 +42,9 @@ dependencies:
   # Carga variables desde el archivo .env (token, config, etc.).
   flutter_dotenv: ^5.2.1
 
+  # Almacenamiento cifrado para el token de sesión (Keychain/KeyStore).
+  flutter_secure_storage: ^9.2.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

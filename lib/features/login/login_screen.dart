@@ -1,8 +1,8 @@
 import 'package:apiland/features/dashboard/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
-import 'package:apiland/core/auth/session.dart';
-import 'package:apiland/core/network/token_store.dart';
+import 'package:apiland/core/auth/auth_manager.dart';
+import 'package:apiland/core/network/api_error.dart';
 import 'package:apiland/core/utils/validators.dart';
 import 'package:apiland/features/login/data/auth_service.dart';
 
@@ -42,13 +42,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _loading = true);
     try {
-      final result = await _authService.login(
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
-      // Guarda el token (para el interceptor) y lee el rol del JWT.
-      TokenStore.setToken(result.accessToken);
-      Session.setFromToken(result.accessToken);
+      final email = _emailController.text.trim();
+      final result = await _authService.login(email, _passwordController.text);
+      // Persiste tokens, arma la sesión (rol/nombre/email) y agenda el refresh.
+      await AuthManager.onAuthenticated(result, email: email);
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const DashboardScreen()),
@@ -56,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No se pudo iniciar sesión: $e')),
+        SnackBar(content: Text(apiErrorMessage(e))),
       );
     } finally {
       if (mounted) setState(() => _loading = false);

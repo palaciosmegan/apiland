@@ -16,6 +16,8 @@ class AppColors {
   static const Color textPrimary = Color(0xFFD3D2D7);
   static const Color textSecondary = Color(0xFF121212);
   static const Color success = Color(0xFF9DFFAC);
+  static const Color error = Color(0xFFEF4444);
+  static const Color greenAccent = Color(0xFF22C55E);
 
   // Tailwind grays
   static const Color gray50 = Color(0xFFF9FAFB);
@@ -163,7 +165,7 @@ class AppTheme {
         if (states.contains(WidgetState.disabled)) {
           color = AppColors.gray400;
         } else if (states.contains(WidgetState.error)) {
-          color = const Color(0xFFEF4444); // rojo de validación
+          color = AppColors.error;
         } else if (states.contains(WidgetState.focused)) {
           color = AppColors.textStandout;
         }
