@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
 import 'package:apiland/core/widgets/floating_nav_fab.dart';
+import 'package:apiland/features/profile/profile_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
-
-  // Verde para el estado "slowest" (no está en la paleta base).
-  static const Color _green = Color(0xFF22C55E);
 
   @override
   Widget build(BuildContext context) {
@@ -25,13 +23,19 @@ class DashboardScreen extends StatelessWidget {
             ),
           ],
         ),
-        actions: const [
+        actions: [
           Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: Icon(
-              Icons.account_circle,
-              size: 32,
-              color: AppColors.gray200,
+            padding: const EdgeInsets.only(right: 8),
+            child: IconButton(
+              icon: const Icon(
+                Icons.account_circle,
+                size: 32,
+                color: AppColors.gray200,
+              ),
+              tooltip: 'Perfil',
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ProfileScreen()),
+              ),
             ),
           ),
         ],
@@ -86,7 +90,7 @@ class DashboardScreen extends StatelessWidget {
             const _SectionHeader('STATS'),
             const SizedBox(height: 8),
 
-            _ResponseTimeCard(green: _green),
+            _ResponseTimeCard(green: AppColors.greenAccent),
             SizedBox(height: MediaQuery.of(context).padding.bottom),
           ],
         ),

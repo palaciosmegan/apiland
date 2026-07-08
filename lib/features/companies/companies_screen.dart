@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
+import 'package:apiland/core/network/api_error.dart';
+import 'package:apiland/core/widgets/error_state.dart';
 import 'package:apiland/core/widgets/floating_nav_fab.dart';
 import 'package:apiland/features/companies/data/company.dart';
 import 'package:apiland/features/companies/data/company_service.dart';
@@ -60,8 +62,9 @@ class _CompaniesScreenState extends State<CompaniesScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return _ErrorState(
-              message: snapshot.error.toString(),
+            return ErrorState(
+              title: 'No se pudieron cargar las compañías',
+              message: apiErrorMessage(snapshot.error!),
               onRetry: _reload,
             );
           }
@@ -104,38 +107,6 @@ class _CompaniesScreenState extends State<CompaniesScreen> {
       ),
       floatingActionButton: const FloatingNavFab(currentRoute: '/companies'),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-    );
-  }
-}
-
-class _ErrorState extends StatelessWidget {
-  const _ErrorState({required this.message, required this.onRetry});
-
-  final String message;
-  final Future<void> Function() onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.cloud_off, size: 48),
-            const SizedBox(height: 16),
-            const Text('No se pudieron cargar las compañías'),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 16),
-            FilledButton(onPressed: onRetry, child: const Text('Reintentar')),
-          ],
-        ),
-      ),
     );
   }
 }

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
+import 'package:apiland/core/network/api_error.dart';
+import 'package:apiland/core/widgets/error_state.dart';
 import 'package:apiland/core/widgets/floating_nav_fab.dart';
 import 'package:apiland/features/login/data/user.dart';
 import 'package:apiland/features/users/data/user_service.dart';
+import 'package:apiland/features/users/new_user_screen.dart';
 
 class UsersScreen extends StatefulWidget {
   const UsersScreen({super.key});
@@ -29,11 +32,26 @@ class _UsersScreenState extends State<UsersScreen> {
     await f;
   }
 
+  Future<void> _addUser() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const NewUserScreen()),
+    );
+    // Al volver del form, refresca la lista (por si se creó uno).
+    await _reload();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Usuarios'),
+        actions: [
+          IconButton(
+            onPressed: _addUser,
+            icon: const Icon(Icons.add),
+            tooltip: 'Nuevo usuario',
+          ),
+        ],
       ),
       body: FutureBuilder<List<User>>(
         future: _future,
@@ -42,8 +60,9 @@ class _UsersScreenState extends State<UsersScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return _ErrorState(
-              message: snapshot.error.toString(),
+            return ErrorState(
+              title: 'No se pudieron cargar los usuarios',
+              message: apiErrorMessage(snapshot.error!),
               onRetry: _reload,
             );
           }
@@ -117,38 +136,6 @@ class _RoleBadge extends StatelessWidget {
         style: const TextStyle(
           fontSize: AppTextSizes.xs,
           color: AppColors.textSecondary,
-        ),
-      ),
-    );
-  }
-}
-
-class _ErrorState extends StatelessWidget {
-  const _ErrorState({required this.message, required this.onRetry});
-
-  final String message;
-  final Future<void> Function() onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.cloud_off, size: 48),
-            const SizedBox(height: 16),
-            const Text('No se pudieron cargar los usuarios'),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 16),
-            FilledButton(onPressed: onRetry, child: const Text('Reintentar')),
-          ],
         ),
       ),
     );

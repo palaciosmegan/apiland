@@ -18,4 +18,14 @@ class UserService {
         .map((e) => User.fromJson(e as Map<String, dynamic>))
         .toList();
   }
+
+  /// POST /api/users → crea un usuario y devuelve el creado.
+  /// Endpoint dedicado (protegido a root en el backend), NO el register público.
+  /// Usa User.toJson() (username, lastName, email, position, password, role).
+  Future<User> createUser(User user) async {
+    final res = await _dio.post(_path, data: user.toJson());
+    final data = res.data;
+    if (data is Map<String, dynamic>) return User.fromJson(data);
+    return user;
+  }
 }
