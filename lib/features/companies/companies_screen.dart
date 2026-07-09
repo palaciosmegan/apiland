@@ -3,6 +3,7 @@ import 'package:apiland/constants/theme/app_theme.dart';
 import 'package:apiland/core/network/api_error.dart';
 import 'package:apiland/core/widgets/error_state.dart';
 import 'package:apiland/core/widgets/floating_nav_fab.dart';
+import 'package:apiland/core/widgets/initials_avatar.dart';
 import 'package:apiland/features/companies/data/company.dart';
 import 'package:apiland/features/companies/data/company_service.dart';
 import 'package:apiland/features/companies/new_company_screen.dart';
@@ -45,16 +46,7 @@ class _CompaniesScreenState extends State<CompaniesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Compañías'),
-        actions: [
-          IconButton(
-            onPressed: _addCompany,
-            icon: const Icon(Icons.add),
-            tooltip: 'Nueva compañía',
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Clientes')),
       body: FutureBuilder<List<Company>>(
         future: _future,
         builder: (context, snapshot) {
@@ -63,19 +55,19 @@ class _CompaniesScreenState extends State<CompaniesScreen> {
           }
           if (snapshot.hasError) {
             return ErrorState(
-              title: 'No se pudieron cargar las compañías',
+              title: 'No se pudieron cargar los clientes',
               message: apiErrorMessage(snapshot.error!),
               onRetry: _reload,
             );
           }
           final companies = snapshot.data ?? const <Company>[];
           if (companies.isEmpty) {
-            return const Center(child: Text('No hay compañías todavía'));
+            return const Center(child: Text('No hay clientes todavía'));
           }
           return RefreshIndicator(
             onRefresh: _reload,
             child: ListView.separated(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
               itemCount: companies.length,
               separatorBuilder: (_, _) => const SizedBox(height: 8),
               itemBuilder: (context, i) {
@@ -83,10 +75,7 @@ class _CompaniesScreenState extends State<CompaniesScreen> {
                 return Card(
                   color: AppColors.secondarySurface,
                   child: ListTile(
-                    leading: const Icon(
-                      Icons.corporate_fare,
-                      color: AppColors.textPrimary,
-                    ),
+                    leading: InitialsAvatar(name: c.name),
                     title: Text(
                       c.name,
                       style: const TextStyle(
@@ -105,7 +94,11 @@ class _CompaniesScreenState extends State<CompaniesScreen> {
           );
         },
       ),
-      floatingActionButton: const FloatingNavFab(currentRoute: '/companies'),
+      floatingActionButton: FloatingNavFab(
+        currentRoute: '/companies',
+        onAdd: _addCompany,
+        addTooltip: 'Nueva compañía',
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }

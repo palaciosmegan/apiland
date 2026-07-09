@@ -1,4 +1,4 @@
-import 'features/monitored_apis/new_api_screen.dart';
+import 'features/monitored_apis/apis_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
@@ -42,8 +42,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginScreen(title: '[a] Apilandia'),
         '/dashboard': (context) => const DashboardScreen(),
-        // TODO: reemplazar por ServicesScreen cuando exista.
-        '/services': (context) => const NewApiScreen(title: 'New API'),
+        '/services': (context) => const ApisScreen(),
         '/companies': (context) => const CompaniesScreen(),
         '/users': (context) => const UsersScreen(),
       },

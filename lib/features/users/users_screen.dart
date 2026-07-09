@@ -44,16 +44,7 @@ class _UsersScreenState extends State<UsersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Usuarios'),
-        actions: [
-          IconButton(
-            onPressed: _addUser,
-            icon: const Icon(Icons.add),
-            tooltip: 'Nuevo usuario',
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Usuarios')),
       body: FutureBuilder<List<User>>(
         future: _future,
         builder: (context, snapshot) {
@@ -74,7 +65,7 @@ class _UsersScreenState extends State<UsersScreen> {
           return RefreshIndicator(
             onRefresh: _reload,
             child: ListView.separated(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
               itemCount: users.length,
               separatorBuilder: (_, _) => const SizedBox(height: 8),
               itemBuilder: (context, i) {
@@ -112,7 +103,11 @@ class _UsersScreenState extends State<UsersScreen> {
           );
         },
       ),
-      floatingActionButton: const FloatingNavFab(currentRoute: '/users'),
+      floatingActionButton: FloatingNavFab(
+        currentRoute: '/users',
+        onAdd: _addUser,
+        addTooltip: 'Nuevo usuario',
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }

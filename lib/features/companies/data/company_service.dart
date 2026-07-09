@@ -9,7 +9,7 @@ class CompanyService {
 
   static const String _path = '/api/companies';
 
-  /// GET /api/companies → lista de compañías.
+  /// GET /api/companies → lista de clientes.
   Future<List<Company>> getCompanies() async {
     final res = await _dio.get(_path);
     final data = res.data as List<dynamic>;

@@ -9,10 +9,19 @@ import 'package:apiland/core/auth/user_role.dart';
 /// Sin GoRouter: navega con [Navigator] usando rutas con nombre. Las rutas que
 /// todavía no tienen pantalla registrada muestran un aviso "próximamente".
 class FloatingNavFab extends StatelessWidget {
-  const FloatingNavFab({super.key, required this.currentRoute});
+  const FloatingNavFab({
+    super.key,
+    required this.currentRoute,
+    this.onAdd,
+    this.addTooltip,
+  });
 
   /// Ruta actual (ej. '/dashboard'), para resaltar el item activo.
   final String currentRoute;
+
+  /// Si se pasa, se muestra un segundo FAB de "+" al lado del menú.
+  final VoidCallback? onAdd;
+  final String? addTooltip;
 
   /// Rutas que ya tienen pantalla registrada en el MaterialApp.
   static const Set<String> _implementedRoutes = {
@@ -23,16 +32,16 @@ class FloatingNavFab extends StatelessWidget {
   };
 
   static const List<_NavItem> _items = [
-    _NavItem(Icons.home_outlined, 'Dashboard', '/dashboard'),
+    _NavItem(Icons.dashboard_outlined, 'Dashboard', '/dashboard'),
     _NavItem(Icons.history, 'Log', '/log'),
     _NavItem(
-      Icons.api_outlined,
+      Icons.api_rounded,
       'APIs',
       '/services',
       children: [_NavItem(null, 'Todas las APIs', '/services')],
     ),
     _NavItem(Icons.groups_2, 'Usuarios', '/users', minRole: UserRole.admin),
-    _NavItem(Icons.business, 'Compañías', '/companies', minRole: UserRole.root),
+    _NavItem(Icons.work_outline, 'Clientes', '/companies', minRole: UserRole.root),
     _NavItem(Icons.settings_outlined, 'Ajustes', '/settings'),
   ];
 
@@ -75,10 +84,24 @@ class FloatingNavFab extends StatelessWidget {
     // Padding con el safe area inferior para no solaparse con la barra del sistema.
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-      child: FloatingActionButton.extended(
-        onPressed: () => _openDrawer(context),
-        label: const Text('Menú', style: TextStyle(fontSize: AppTextSizes.xs, fontWeight: FontWeight.w600)),
-        icon: const Icon(Icons.menu),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton.small(
+            heroTag: 'nav-fab',
+            onPressed: () => _openDrawer(context),
+            child: const Icon(Icons.grid_view),
+          ),
+          if (onAdd != null) ...[
+            const SizedBox(width: 12),
+            FloatingActionButton.small(
+              heroTag: 'add-fab',
+              onPressed: onAdd,
+              tooltip: addTooltip,
+              child: const Icon(Icons.add),
+            ),
+          ],
+        ],
       ),
     );
   }

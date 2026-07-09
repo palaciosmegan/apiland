@@ -1,5 +1,8 @@
+import 'package:apiland/core/network/api_error.dart';
+import 'package:apiland/core/utils/validators.dart';
 import 'package:apiland/core/widgets/app_dropdown.dart';
-import 'package:apiland/features/dashboard/dashboard_screen.dart';
+import 'package:apiland/features/monitored_apis/data/monitored_api.dart';
+import 'package:apiland/features/monitored_apis/data/monitored_api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
 import 'package:apiland/core/widgets/app_button.dart';
@@ -22,9 +25,14 @@ const List<String> refreshApiIntervalOptions = <String>[
 ];
 
 class _NewApiScreenState extends State<NewApiScreen> {
+  final _formKey = GlobalKey<FormState>();
   final CompanyService _companyService = CompanyService();
+  final MonitoredApiService _monitoredApiService = MonitoredApiService();
+  final _nameController = TextEditingController();
+  final _urlController = TextEditingController();
 
   String _intervalDropdownValue = refreshApiIntervalOptions.first;
+  bool _saving = false;
 
   List<Company> _companies = [];
   Company? _selectedCompany;
@@ -35,6 +43,13 @@ class _NewApiScreenState extends State<NewApiScreen> {
   void initState() {
     super.initState();
     _loadCompanies();
+  }
+  
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _urlController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadCompanies() async {
@@ -55,6 +70,35 @@ class _NewApiScreenState extends State<NewApiScreen> {
         _loadingCompanies = false;
         _companiesError = true;
       });
+    }
+  }
+
+  Future<void> _save() async {
+    // Valida el form antes de mandar nada al backend.
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _saving = true);
+    try {
+      await _monitoredApiService.createMonitoredApi(
+        MonitoredApi(
+          name: _nameController.text.trim(),
+          companyId: _selectedCompany!.id!,
+          url: _urlController.text.trim(),
+          // refreshInterval: _intervalDropdownValue,
+        ),
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('API creada')));
+      Navigator.of(context).pop(true); // vuelve a la lista y la refresca
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(apiErrorMessage(e))));
+    } finally {
+      if (mounted) setState(() => _saving = false);
     }
   }
 
@@ -83,6 +127,7 @@ class _NewApiScreenState extends State<NewApiScreen> {
               Padding(
                 padding: const EdgeInsets.all(24),
                 child: Form(
+                  key: _formKey,
                   child: Column(
                     children: [
                       Text('Información general'),
@@ -90,7 +135,8 @@ class _NewApiScreenState extends State<NewApiScreen> {
                       SizedBox(height: 16),
 
                       TextFormField(
-                        keyboardType: TextInputType.emailAddress,
+                        controller: _nameController,
+                        keyboardType: TextInputType.text,
                         style: const TextStyle(
                           fontSize: AppTextSizes.base,
                         ), // 16 value text
@@ -99,7 +145,6 @@ class _NewApiScreenState extends State<NewApiScreen> {
                           hintText: "Prosembra API",
                           prefixIcon: Icon(Icons.api),
                         ),
-                        onChanged: (String value) {},
                         validator: (value) {
                           return value!.isEmpty ? 'Ingresa un nombre' : null;
                         },
@@ -120,60 +165,17 @@ class _NewApiScreenState extends State<NewApiScreen> {
                         validator: (value) =>
                             value == null ? 'Selecciona un cliente' : null,
                         hint: _loadingCompanies
-                            ? "Cargando compañías…"
+                            ? "Cargando clientes…"
                             : _companiesError
                             ? "Error al cargar"
                             : "Selecciona un cliente",
                       ),
 
-                      // Cliente: dropdown poblado con el GET de compañías.
-                      // DropdownButtonFormField<Company>(
-                      //   initialValue: _selectedCompany,
-                      //   isExpanded: true,
-                      //   decoration: InputDecoration(
-                      //     labelText: "Cliente",
-                      //     hintText: _loadingCompanies
-                      //         ? "Cargando compañías…"
-                      //         : _companiesError
-                      //         ? "Error al cargar (toca refrescar)"
-                      //         : "Selecciona un cliente",
-                      //     prefixIcon: const Icon(Icons.corporate_fare),
-                      //     suffixIcon: _loadingCompanies
-                      //         ? const Padding(
-                      //             padding: EdgeInsets.all(12),
-                      //             child: SizedBox(
-                      //               width: 16,
-                      //               height: 16,
-                      //               child: CircularProgressIndicator(strokeWidth: 2),
-                      //             ),
-                      //           )
-                      //         : _companiesError
-                      //         ? IconButton(
-                      //             icon: const Icon(Icons.refresh),
-                      //             onPressed: _loadCompanies,
-                      //           )
-                      //         : null,
-                      //   ),
-                      //   items: _companies
-                      //       .map(
-                      //         (c) => DropdownMenuItem<Company>(
-                      //           value: c,
-                      //           child: Text(c.name, style: Theme.of(context).textTheme.bodySmall,),
-                      //         ),
-                      //       )
-                      //       .toList(),
-                      //   // Deshabilitado mientras carga.
-                      //   onChanged: _loadingCompanies
-                      //       ? null
-                      //       : (company) =>
-                      //             setState(() => _selectedCompany = company),
-                      //   validator: (value) =>
-                      //       value == null ? 'Selecciona un cliente' : null,
-                      // ),
                       SizedBox(height: 16),
 
                       TextFormField(
-                        keyboardType: TextInputType.text,
+                        controller: _urlController,
+                        keyboardType: TextInputType.url,
                         style: const TextStyle(
                           fontSize: AppTextSizes.base,
                         ), // 16 value text
@@ -182,9 +184,7 @@ class _NewApiScreenState extends State<NewApiScreen> {
                           hintText: "https://api.prosembra.com",
                           prefixIcon: Icon(Icons.link),
                         ),
-                        validator: (value) {
-                          return value!.isEmpty ? 'Ingresa la url' : null;
-                        },
+                        validator: Validators.url,
                       ),
 
                       SizedBox(height: 16),
@@ -200,23 +200,6 @@ class _NewApiScreenState extends State<NewApiScreen> {
                             value == null ? 'Selecciona un cliente' : null,
                       ),
 
-                      // DropdownButtonFormField<String>(
-                      //   initialValue: _intervalDropdownValue,
-                      //   isExpanded: true,
-                      //   decoration: const InputDecoration(
-                      //     labelText: "Intervalo",
-                      //     prefixIcon: Icon(Icons.timer),
-                      //   ),
-                      //   items: refreshApiIntervalOptions
-                      //       .map(
-                      //         (value) => DropdownMenuItem<String>(
-                      //           value: value,
-                      //           child: Text(value),
-                      //         ),
-                      //       )
-                      //       .toList(),
-                      //   onChanged: intervalDropdownCallback,
-                      // ),
                       SizedBox(height: 24),
 
                       Text('Acceso'),
@@ -230,13 +213,8 @@ class _NewApiScreenState extends State<NewApiScreen> {
                       // Acción primaria.
                       PrimaryButton(
                         label: 'Guardar API',
-                        onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => const DashboardScreen(),
-                            ),
-                          );
-                        },
+                        loading: _saving,
+                        onPressed: _save,
                       ),
                     ],
                   ),

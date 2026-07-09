@@ -181,7 +181,7 @@ class _NewUserScreenState extends State<NewUserScreen> {
                     validator: (value) =>
                         value == null ? 'Selecciona un cliente' : null,
                     hint: _loadingCompanies
-                        ? "Cargando compañías…"
+                        ? "Cargando clientes…"
                         : _companiesError
                         ? "Error al cargar"
                         : "Selecciona un cliente",
@@ -217,25 +217,6 @@ class _NewUserScreenState extends State<NewUserScreen> {
                     prefixIcon: Icons.shield_outlined,
                   ),
 
-                  // DropdownButtonFormField<UserRole>(
-                  //   initialValue: _role,
-                  //   isExpanded: true,
-                  //   decoration: const InputDecoration(
-                  //     labelText: 'Rol',
-                  //     prefixIcon: Icon(Icons.shield_outlined),
-                  //   ),
-                  //   // El backend solo permite crear 'admin' o 'user' (root no).
-                  //   items: UserRole.values
-                  //       .where((r) => r != UserRole.root)
-                  //       .map(
-                  //         (r) => DropdownMenuItem<UserRole>(
-                  //           value: r,
-                  //           child: Text(r.wire),
-                  //         ),
-                  //       )
-                  //       .toList(),
-                  //   onChanged: (r) => setState(() => _role = r ?? UserRole.viewer),
-                  // ),
                   const SizedBox(height: 24),
 
                   PrimaryButton(

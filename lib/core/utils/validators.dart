@@ -22,4 +22,16 @@ class Validators {
     if (!_emailRegex.hasMatch(email)) return '¡Ese no es un email válido!';
     return null;
   }
+
+  /// URL: obligatoria + esquema http/https/ftp y con host (como pide el backend).
+  static String? url(String? value) {
+    final url = value?.trim() ?? '';
+    if (url.isEmpty) return 'Ingresa la URL';
+    final uri = Uri.tryParse(url);
+    const validSchemes = {'http', 'https', 'ftp'};
+    if (uri == null || !uri.hasAuthority || !validSchemes.contains(uri.scheme)) {
+      return 'Ingresa una URL válida (http, https o ftp)';
+    }
+    return null;
+  }
 }
