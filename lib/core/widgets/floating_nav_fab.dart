@@ -13,6 +13,7 @@ class FloatingNavFab extends StatelessWidget {
     super.key,
     required this.currentRoute,
     this.onAdd,
+    this.addEnabled = true,
     this.addTooltip,
   });
 
@@ -21,6 +22,10 @@ class FloatingNavFab extends StatelessWidget {
 
   /// Si se pasa, se muestra un segundo FAB de "+" al lado del menú.
   final VoidCallback? onAdd;
+
+  /// Si es false, el FAB de "+" se ve pero queda desactivado (gris).
+  final bool addEnabled;
+
   final String? addTooltip;
 
   /// Rutas que ya tienen pantalla registrada en el MaterialApp.
@@ -93,11 +98,15 @@ class FloatingNavFab extends StatelessWidget {
             child: const Icon(Icons.grid_view),
           ),
           if (onAdd != null) ...[
-            const SizedBox(width: 12),
+            const SizedBox(width: 8),
             FloatingActionButton.small(
               heroTag: 'add-fab',
-              onPressed: onAdd,
+              // null → no tappable; + estilo gris apagado cuando está off.
+              onPressed: addEnabled ? onAdd : null,
               tooltip: addTooltip,
+              backgroundColor: addEnabled ? null : AppColors.gray700,
+              foregroundColor: addEnabled ? null : AppColors.gray500,
+              elevation: addEnabled ? null : 0,
               child: const Icon(Icons.add),
             ),
           ],
@@ -328,7 +337,7 @@ class _NavTileState extends State<_NavTile> {
           ),
         ),
         trailing: trailing,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         onTap: onTap,
       ),
     );

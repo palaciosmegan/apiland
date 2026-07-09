@@ -17,20 +17,36 @@ class CompaniesScreen extends StatefulWidget {
 
 class _CompaniesScreenState extends State<CompaniesScreen> {
   final CompanyService _service = CompanyService();
-  late Future<List<Company>> _future;
+
+  List<Company> _companies = const [];
+  Object? _error;
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    _future = _service.getCompanies();
+    _load();
   }
 
-  Future<void> _reload() async {
-    final f = _service.getCompanies();
+  Future<void> _load() async {
     setState(() {
-      _future = f;
+      _loading = true;
+      _error = null;
     });
-    await f;
+    try {
+      final list = await _service.getCompanies();
+      if (!mounted) return;
+      setState(() {
+        _companies = list;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e;
+        _loading = false;
+      });
+    }
   }
 
   Future<void> _addCompany() async {
@@ -39,67 +55,66 @@ class _CompaniesScreenState extends State<CompaniesScreen> {
         builder: (_) => const NewCompanyScreen(title: 'Nueva compañía'),
       ),
     );
-    // Al volver del form, refresca la lista (por si se creó una).
-    await _reload();
+    await _load(); // refresca al volver (por si se creó una)
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Clientes')),
-      body: FutureBuilder<List<Company>>(
-        future: _future,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return ErrorState(
-              title: 'No se pudieron cargar los clientes',
-              message: apiErrorMessage(snapshot.error!),
-              onRetry: _reload,
-            );
-          }
-          final companies = snapshot.data ?? const <Company>[];
-          if (companies.isEmpty) {
-            return const Center(child: Text('No hay clientes todavía'));
-          }
-          return RefreshIndicator(
-            onRefresh: _reload,
-            child: ListView.separated(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-              itemCount: companies.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 8),
-              itemBuilder: (context, i) {
-                final c = companies[i];
-                return Card(
-                  color: AppColors.secondarySurface,
-                  child: ListTile(
-                    leading: InitialsAvatar(name: c.name),
-                    title: Text(
-                      c.name,
-                      style: const TextStyle(
-                        color: AppColors.textStandout,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    subtitle: Text(
-                      c.tipoCliente,
-                      style: const TextStyle(color: AppColors.textPrimary),
-                    ),
-                  ),
-                );
-              },
+      body: _buildBody(),
+      // Sin conexión al GET → el add queda desactivado (tampoco habría POST).
+      floatingActionButton: FloatingNavFab(
+        currentRoute: '/companies',
+        onAdd: _addCompany,
+        addEnabled: _error == null,
+        addTooltip: 'Nuevo cliente',
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+
+  Widget _buildBody() {
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_error != null) {
+      return ErrorState(
+        title: 'No se pudieron traer los clientes',
+        message: apiErrorMessage(_error!),
+        onRetry: _load,
+      );
+    }
+    if (_companies.isEmpty) {
+      return const Center(child: Text('No hay clientes todavía'));
+    }
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView.separated(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+        itemCount: _companies.length,
+        separatorBuilder: (_, _) => const SizedBox(height: 8),
+        itemBuilder: (context, i) {
+          final c = _companies[i];
+          return Card(
+            color: AppColors.secondarySurface,
+            child: ListTile(
+              leading: InitialsAvatar(name: c.name),
+              title: Text(
+                c.name,
+                style: const TextStyle(
+                  color: AppColors.textStandout,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              subtitle: Text(
+                c.tipoCliente,
+                style: const TextStyle(color: AppColors.textPrimary),
+              ),
             ),
           );
         },
       ),
-      floatingActionButton: FloatingNavFab(
-        currentRoute: '/companies',
-        onAdd: _addCompany,
-        addTooltip: 'Nueva compañía',
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

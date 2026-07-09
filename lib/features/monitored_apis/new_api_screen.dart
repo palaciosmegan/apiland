@@ -243,13 +243,13 @@ class _DashedButton extends StatelessWidget {
       child: CustomPaint(
         painter: const _DashedRRectPainter(
           color: AppColors.gray600,
-          radius: 12,
+          radius: 16,
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
             onTap: onPressed,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             child: Center(
               child: Text(
                 label,
@@ -268,7 +268,7 @@ class _DashedButton extends StatelessWidget {
 
 /// Dibuja un rectángulo redondeado con borde punteado (Flutter no lo trae).
 class _DashedRRectPainter extends CustomPainter {
-  const _DashedRRectPainter({required this.color, this.radius = 12});
+  const _DashedRRectPainter({required this.color, this.radius = 16});
 
   final Color color;
   final double radius;

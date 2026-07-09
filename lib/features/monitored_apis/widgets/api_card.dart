@@ -17,37 +17,57 @@ class ApiCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.secondarySurface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Icono en cuadro con tinte.
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: AppColors.primary400.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(Icons.api, color: AppColors.primary200, size: 20),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: AppColors.primary400.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.api,
+                  color: AppColors.primary200,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      api.name,
+                      style: const TextStyle(
+                        fontSize: AppTextSizes.base,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textStandout,
+                      ),
+                    ),
+                    const _Muted('Client name'),
+                  ],
+                ),
+              ),
+              const _Pill('status'),
+            ],
           ),
-          const SizedBox(height: 12),
-          Text(
-            api.name,
-            style: const TextStyle(
-              fontSize: AppTextSizes.base,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textStandout,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 8),
+              const _Muted('25 incidentes / 30 días'),
+              const SizedBox(height: 8),
+              const _Pill('1 endpoint caído, 6 activos'),
+              const SizedBox(height: 8),
+            ],
           ),
-          const _Muted('Client name'),
-          const SizedBox(height: 12),
-          const _Pill('Current status'),
-          const SizedBox(height: 12),
-          const _Muted('25 incidentes / 30 días'),
-          const SizedBox(height: 8),
-          const _Pill('1 endpoint caído, 6 activos'),
         ],
       ),
     );
@@ -84,7 +104,7 @@ class _Pill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
         color: AppColors.badgeSurface,
         borderRadius: BorderRadius.circular(16),

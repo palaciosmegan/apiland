@@ -16,75 +16,82 @@ class ApisScreen extends StatefulWidget {
 
 class _ApisScreenState extends State<ApisScreen> {
   final MonitoredApiService _service = MonitoredApiService();
-  late Future<List<MonitoredApi>> _future;
+
+  List<MonitoredApi> _apis = const [];
+  Object? _error;
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    _future = _service.getMonitoredApis();
+    _load();
   }
 
-  Future<void> _reload() async {
-    final f = _service.getMonitoredApis();
+  Future<void> _load() async {
     setState(() {
-      _future = f;
+      _loading = true;
+      _error = null;
     });
-    await f;
+    try {
+      final list = await _service.getMonitoredApis();
+      if (!mounted) return;
+      setState(() {
+        _apis = list;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e;
+        _loading = false;
+      });
+    }
   }
 
   Future<void> _addApi() async {
     await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const NewApiScreen(title: 'Nueva API'),
-      ),
+      MaterialPageRoute(builder: (_) => const NewApiScreen(title: 'Nueva API')),
     );
-    // Al volver del form, refresca la lista (por si se creó una).
-    await _reload();
+    await _load(); // refresca al volver (por si se creó una)
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('APIs')),
-      body: FutureBuilder<List<MonitoredApi>>(
-        future: _future,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return ErrorState(
-              title: 'No se pudieron cargar las APIs',
-              message: apiErrorMessage(snapshot.error!),
-              onRetry: _reload,
-            );
-          }
-          final apis = snapshot.data ?? const <MonitoredApi>[];
-          if (apis.isEmpty) {
-            return const Center(child: Text('No hay APIs todavía'));
-          }
-          return RefreshIndicator(
-            onRefresh: _reload,
-            child: GridView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 0.72,
-              ),
-              itemCount: apis.length,
-              itemBuilder: (context, i) => ApiCard(api: apis[i]),
-            ),
-          );
-        },
-      ),
+      body: _buildBody(),
       floatingActionButton: FloatingNavFab(
         currentRoute: '/services',
         onAdd: _addApi,
+        addEnabled: _error == null,
         addTooltip: 'Nueva API',
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+
+  Widget _buildBody() {
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_error != null) {
+      return ErrorState(
+        title: 'No se pudieron traer las APIs',
+        message: apiErrorMessage(_error!),
+        onRetry: _load,
+      );
+    }
+    if (_apis.isEmpty) {
+      return const Center(child: Text('No hay APIs todavía'));
+    }
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView.separated(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+        itemCount: _apis.length,
+        separatorBuilder: (_, _) => const SizedBox(height: 16),
+        itemBuilder: (context, i) => ApiCard(api: _apis[i]),
+      ),
     );
   }
 }
