@@ -9,6 +9,7 @@ class User {
     required this.lastName,
     required this.email,
     required this.position,
+    required this.companyId,
     required this.role,
     this.password, // solo para crear (se envía como "password")
     this.passwordHash, // solo viene del backend (se lee de "passwordHash")
@@ -19,6 +20,7 @@ class User {
   final String lastName;
   final String email;
   final String position;
+  final int companyId;
   final UserRole role;
 
   /// Texto plano, únicamente al crear un usuario. No viene en las respuestas.
@@ -34,6 +36,7 @@ class User {
       lastName: (json['lastName'] ?? '') as String,
       email: (json['email'] ?? '') as String,
       position: (json['position'] ?? '') as String,
+      companyId: json['companyId'] as int,
       passwordHash: json['passwordHash'] as String?,
       role: UserRole.fromWire(json['role'] as String?),
     );
@@ -45,6 +48,7 @@ class User {
     'lastName': lastName,
     'email': email,
     'position': position,
+    'companyId': companyId,
     'password': password ?? '',
     'role': role.wire.toLowerCase(),
   };

@@ -36,6 +36,4 @@ class AuthService {
     );
     return AuthResult.fromJson(res.data as Map<String, dynamic>);
   }
-
-  // GET /api/auth/list → lista de usuarios (solo root).
 }

@@ -1,3 +1,5 @@
+import 'package:apiland/features/companies/data/company.dart';
+import 'package:apiland/features/companies/data/company_service.dart';
 import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
 import 'package:apiland/core/network/api_error.dart';
@@ -22,10 +24,34 @@ class _UsersScreenState extends State<UsersScreen> {
   Object? _error;
   bool _loading = true;
 
+  List<Company> _companies = [];
+  final CompanyService _companyService = CompanyService();
+  bool _loadingCompanies = true;
+
   @override
   void initState() {
     super.initState();
     _load();
+    _loadCompanies();
+  }
+
+  Future<void> _loadCompanies() async {
+    setState(() {
+      _loadingCompanies = true;
+    });
+    try {
+      final list = await _companyService.getCompanies();
+      if (!mounted) return;
+      setState(() {
+        _companies = list;
+        _loadingCompanies = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _loadingCompanies = false;
+      });
+    }
   }
 
   Future<void> _load() async {
@@ -113,10 +139,10 @@ class _UsersScreenState extends State<UsersScreen> {
               ),
               subtitle: Text(
                 [
-                  u.email,
-                  if (u.position.isNotEmpty) u.position,
+                  u.position,
+                  if(!_loadingCompanies) _companies.firstWhere((c) => c.id == u.companyId, orElse: () => Company(id: 1, name: '', tipoCliente: '')).name,
                 ].join(' · '),
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: const TextStyle(color: AppColors.textPrimary, fontSize: AppTextSizes.xs),
               ),
               trailing: RoleBadge(role: u.role),
             ),

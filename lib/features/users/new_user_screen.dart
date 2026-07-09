@@ -22,9 +22,9 @@ class _NewUserScreenState extends State<NewUserScreen> {
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _positionController = TextEditingController();
+  final CompanyService _companyService = CompanyService();
   final _passwordController = TextEditingController();
   final UserService _service = UserService();
-    final CompanyService _companyService = CompanyService();
 
   List<Company> _companies = [];
   Company? _selectedCompany;
@@ -82,6 +82,7 @@ class _NewUserScreenState extends State<NewUserScreen> {
           lastName: _lastNameController.text.trim(),
           email: _emailController.text.trim(),
           position: _positionController.text.trim(),
+          companyId: _selectedCompany!.id!,
           role: _role,
           password: _passwordController.text,
         ),

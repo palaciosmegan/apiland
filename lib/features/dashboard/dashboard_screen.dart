@@ -1,3 +1,4 @@
+import 'package:apiland/core/auth/session.dart';
 import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
 import 'package:apiland/core/widgets/floating_nav_fab.dart';
@@ -34,14 +35,14 @@ class DashboardScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(
-        title: const Text("Jesus Ascama's Dashboard"),
+        title: Text(Session.name.isEmpty ? 'Usuario\u0027s dashboard' : '${Session.name}\u0027s dashboard'),
         actions: [
           IconButton(
             icon: const Icon(Icons.account_circle, size: 32),
             tooltip: 'Perfil',
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const ProfileScreen()),
-            ),
+            onPressed: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const ProfileScreen())),
           ),
           const SizedBox(width: 8),
         ],
