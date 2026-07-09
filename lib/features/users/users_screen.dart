@@ -89,9 +89,14 @@ class _UsersScreenState extends State<UsersScreen> {
       body: _buildBody(),
       floatingActionButton: FloatingNavFab(
         currentRoute: '/users',
-        onAdd: _addUser,
-        addEnabled: _error == null,
-        addTooltip: 'Nuevo usuario',
+        actions: [
+          NavFabAction(
+            icon: Icons.add,
+            onPressed: _addUser,
+            enabled: _error == null,
+            tooltip: 'Nuevo usuario',
+          ),
+        ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

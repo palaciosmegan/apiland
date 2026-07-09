@@ -66,9 +66,14 @@ class _CompaniesScreenState extends State<CompaniesScreen> {
       // Sin conexión al GET → el add queda desactivado (tampoco habría POST).
       floatingActionButton: FloatingNavFab(
         currentRoute: '/companies',
-        onAdd: _addCompany,
-        addEnabled: _error == null,
-        addTooltip: 'Nuevo cliente',
+        actions: [
+          NavFabAction(
+            icon: Icons.add,
+            onPressed: _addCompany,
+            enabled: _error == null,
+            tooltip: 'Nuevo cliente',
+          ),
+        ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

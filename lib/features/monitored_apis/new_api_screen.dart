@@ -1,11 +1,11 @@
 import 'package:apiland/core/network/api_error.dart';
 import 'package:apiland/core/utils/validators.dart';
 import 'package:apiland/core/widgets/app_dropdown.dart';
+import 'package:apiland/core/widgets/floating_nav_fab.dart';
 import 'package:apiland/features/monitored_apis/data/monitored_api.dart';
 import 'package:apiland/features/monitored_apis/data/monitored_api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
-import 'package:apiland/core/widgets/app_button.dart';
 import 'package:apiland/features/companies/data/company.dart';
 import 'package:apiland/features/companies/data/company_service.dart';
 
@@ -44,7 +44,7 @@ class _NewApiScreenState extends State<NewApiScreen> {
     super.initState();
     _loadCompanies();
   }
-  
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -123,7 +123,6 @@ class _NewApiScreenState extends State<NewApiScreen> {
           child: Column(
             children: [
               SizedBox(height: 16),
-
               Padding(
                 padding: const EdgeInsets.all(24),
                 child: Form(
@@ -202,20 +201,12 @@ class _NewApiScreenState extends State<NewApiScreen> {
 
                       SizedBox(height: 24),
 
-                      Text('Acceso'),
                       Text('Endpoints'),
+                      SizedBox(height: 8),
 
                       // Acción secundaria: borde punteado, sin relleno.
                       _DashedButton(label: 'Añadir endpoint', onPressed: () {}),
-
-                      SizedBox(height: 16),
-
-                      // Acción primaria.
-                      PrimaryButton(
-                        label: 'Guardar API',
-                        loading: _saving,
-                        onPressed: _save,
-                      ),
+                      // El guardar ahora vive en el check FAB (abajo).
                     ],
                   ),
                 ),
@@ -223,6 +214,18 @@ class _NewApiScreenState extends State<NewApiScreen> {
             ],
           ),
         ),
+        floatingActionButton: FloatingNavFab(
+          showMenu: false,
+          actions: [
+            NavFabAction(
+              icon: Icons.check,
+              onPressed: _save,
+              loading: _saving,
+              tooltip: 'Guardar API',
+            ),
+          ],
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
     );
   }

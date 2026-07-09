@@ -62,9 +62,14 @@ class _ApisScreenState extends State<ApisScreen> {
       body: _buildBody(),
       floatingActionButton: FloatingNavFab(
         currentRoute: '/services',
-        onAdd: _addApi,
-        addEnabled: _error == null,
-        addTooltip: 'Nueva API',
+        actions: [
+          NavFabAction(
+            icon: Icons.add,
+            onPressed: _addApi,
+            enabled: _error == null,
+            tooltip: 'Nueva API',
+          ),
+        ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

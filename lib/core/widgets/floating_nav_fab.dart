@@ -11,22 +11,21 @@ import 'package:apiland/core/auth/user_role.dart';
 class FloatingNavFab extends StatelessWidget {
   const FloatingNavFab({
     super.key,
-    required this.currentRoute,
-    this.onAdd,
-    this.addEnabled = true,
-    this.addTooltip,
+    this.currentRoute = '',
+    this.showMenu = true,
+    this.actions = const [],
   });
 
   /// Ruta actual (ej. '/dashboard'), para resaltar el item activo.
   final String currentRoute;
 
-  /// Si se pasa, se muestra un segundo FAB de "+" al lado del menú.
-  final VoidCallback? onAdd;
+  /// Muestra el FAB de menú (grid). En pantallas de crear se pone en `false`
+  /// para dejar solo las acciones (ej. el check de guardar).
+  final bool showMenu;
 
-  /// Si es false, el FAB de "+" se ve pero queda desactivado (gris).
-  final bool addEnabled;
-
-  final String? addTooltip;
+  /// Acciones extra que cada página define (ej. agregar, guardar). Se muestran
+  /// como FABs pequeños al lado del menú.
+  final List<NavFabAction> actions;
 
   /// Rutas que ya tienen pantalla registrada en el MaterialApp.
   static const Set<String> _implementedRoutes = {
@@ -86,34 +85,75 @@ class FloatingNavFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fabs = <Widget>[
+      // FAB de menú (grid) — se oculta en pantallas de crear.
+      if (showMenu)
+        FloatingActionButton.small(
+          // heroTag único por instancia: evita el conflicto de Hero cuando dos
+          // pantallas con FloatingNavFab coexisten durante la transición.
+          heroTag: UniqueKey(),
+          onPressed: () => _openDrawer(context),
+          child: const Icon(Icons.grid_view),
+        ),
+      // Un FAB por cada acción que pase la página.
+      for (final action in actions)
+        FloatingActionButton.small(
+          heroTag: UniqueKey(),
+          onPressed: (action.enabled && !action.loading)
+              ? action.onPressed
+              : null,
+          tooltip: action.tooltip,
+          backgroundColor: action.enabled ? null : AppColors.gray700,
+          foregroundColor: action.enabled ? null : AppColors.gray500,
+          elevation: action.enabled ? null : 0,
+          child: action.loading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.textSecondary,
+                  ),
+                )
+              : Icon(action.icon),
+        ),
+    ];
+
     // Padding con el safe area inferior para no solaparse con la barra del sistema.
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          FloatingActionButton.small(
-            heroTag: 'nav-fab',
-            onPressed: () => _openDrawer(context),
-            child: const Icon(Icons.grid_view),
-          ),
-          if (onAdd != null) ...[
-            const SizedBox(width: 8),
-            FloatingActionButton.small(
-              heroTag: 'add-fab',
-              // null → no tappable; + estilo gris apagado cuando está off.
-              onPressed: addEnabled ? onAdd : null,
-              tooltip: addTooltip,
-              backgroundColor: addEnabled ? null : AppColors.gray700,
-              foregroundColor: addEnabled ? null : AppColors.gray500,
-              elevation: addEnabled ? null : 0,
-              child: const Icon(Icons.add),
-            ),
+          for (var i = 0; i < fabs.length; i++) ...[
+            if (i > 0) const SizedBox(width: 8),
+            fabs[i],
           ],
         ],
       ),
     );
   }
+}
+
+/// Una acción-FAB que una página monta al lado del menú (agregar, guardar, …).
+class NavFabAction {
+  const NavFabAction({
+    required this.icon,
+    required this.onPressed,
+    this.tooltip,
+    this.enabled = true,
+    this.loading = false,
+  });
+
+  final IconData icon;
+  final VoidCallback? onPressed;
+  final String? tooltip;
+
+  /// Si está cargando, muestra un spinner en vez del icono y no es tappable.
+  final bool loading;
+
+  /// Si es false, el FAB se ve gris/desactivado (no tappable).
+  final bool enabled;
 }
 
 class _NavItem {

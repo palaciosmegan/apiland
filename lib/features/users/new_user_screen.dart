@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
 import 'package:apiland/core/network/api_error.dart';
 import 'package:apiland/core/utils/validators.dart';
-import 'package:apiland/core/widgets/app_button.dart';
+import 'package:apiland/core/widgets/floating_nav_fab.dart';
 import 'package:apiland/features/login/data/user.dart';
 import 'package:apiland/features/users/data/user_service.dart';
 
@@ -218,18 +218,24 @@ class _NewUserScreenState extends State<NewUserScreen> {
                     prefixIcon: Icons.shield_outlined,
                   ),
 
-                  const SizedBox(height: 24),
-
-                  PrimaryButton(
-                    label: 'Guardar usuario',
-                    loading: _saving,
-                    onPressed: _save,
-                  ),
                 ],
               ),
             ),
           ),
         ),
+        // Guardar como check FAB (sin menú en pantallas de crear).
+        floatingActionButton: FloatingNavFab(
+          showMenu: false,
+          actions: [
+            NavFabAction(
+              icon: Icons.check,
+              onPressed: _save,
+              loading: _saving,
+              tooltip: 'Guardar usuario',
+            ),
+          ],
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
     );
   }

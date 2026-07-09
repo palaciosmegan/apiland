@@ -2,7 +2,7 @@ import 'package:apiland/core/widgets/app_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
 import 'package:apiland/core/network/api_error.dart';
-import 'package:apiland/core/widgets/app_button.dart';
+import 'package:apiland/core/widgets/floating_nav_fab.dart';
 import 'package:apiland/features/companies/data/company.dart';
 import 'package:apiland/features/companies/data/company_service.dart';
 
@@ -116,14 +116,6 @@ class _NewCompanyScreenState extends State<NewCompanyScreen> {
                         label: "Tipo",
                         prefixIcon: Icons.lan,
                       ),
-
-                      SizedBox(height: 24),
-
-                      PrimaryButton(
-                        label: 'Guardar compañía',
-                        loading: _saving,
-                        onPressed: _save,
-                      ),
                     ],
                   ),
                 ),
@@ -131,6 +123,19 @@ class _NewCompanyScreenState extends State<NewCompanyScreen> {
             ],
           ),
         ),
+        // Guardar como check FAB (sin menú en pantallas de crear).
+        floatingActionButton: FloatingNavFab(
+          showMenu: false,
+          actions: [
+            NavFabAction(
+              icon: Icons.check,
+              onPressed: _save,
+              loading: _saving,
+              tooltip: 'Guardar compañía',
+            ),
+          ],
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
     );
   }
