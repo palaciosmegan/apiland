@@ -1,3 +1,5 @@
+import 'package:apiland/features/audit_log/audit_log_screen.dart';
+
 import 'features/monitored_apis/apis_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -42,6 +44,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginScreen(title: '[a] Apilandia'),
         '/dashboard': (context) => const DashboardScreen(),
+        '/logs': (context) => const AuditLogScreen(),
         '/services': (context) => const ApisScreen(),
         '/companies': (context) => const CompaniesScreen(),
         '/users': (context) => const UsersScreen(),

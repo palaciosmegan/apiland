@@ -30,6 +30,7 @@ class FloatingNavFab extends StatelessWidget {
   /// Rutas que ya tienen pantalla registrada en el MaterialApp.
   static const Set<String> _implementedRoutes = {
     '/dashboard',
+    '/logs',
     '/services',
     '/companies',
     '/users',
@@ -37,7 +38,7 @@ class FloatingNavFab extends StatelessWidget {
 
   static const List<_NavItem> _items = [
     _NavItem(Icons.dashboard_outlined, 'Dashboard', '/dashboard'),
-    _NavItem(Icons.history, 'Log', '/log'),
+    _NavItem(Icons.history, 'Audit logs', '/logs', minRole: UserRole.root),
     _NavItem(
       Icons.api_rounded,
       'APIs',
@@ -235,7 +236,7 @@ class _NavDrawerState extends State<_NavDrawer>
           child: SizedBox(
             width: double.infinity,
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -329,7 +330,7 @@ class _NavTileState extends State<_NavTile> {
               curve: Curves.easeOutCubic,
               child: _expanded
                   ? Padding(
-                      padding: const EdgeInsets.only(left: 24),
+                      padding: const EdgeInsets.only(left: 42),
                       child: Column(
                         children: item.children
                             .map(
@@ -363,7 +364,7 @@ class _NavTileState extends State<_NavTile> {
     // Activo: texto/icono en primaryLight. Inactivo: color de texto secundario.
     final color = active ? AppColors.primary400 : colors.onSurfaceVariant;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(bottom: 0),
       child: ListTile(
         // El fondo va en el propio ListTile (tileColor + shape), no en un
         // Container con decoration — así el ink/splash es visible.
