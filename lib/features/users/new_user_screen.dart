@@ -10,7 +10,10 @@ import 'package:apiland/features/login/data/user.dart';
 import 'package:apiland/features/users/data/user_service.dart';
 
 class NewUserScreen extends StatefulWidget {
-  const NewUserScreen({super.key});
+  const NewUserScreen({super.key, this.existingUser});
+
+  /// Si viene seteado, la pantalla edita este usuario en vez de crear uno.
+  final User? existingUser;
 
   @override
   State<NewUserScreen> createState() => _NewUserScreenState();
@@ -31,9 +34,19 @@ class _NewUserScreenState extends State<NewUserScreen> {
   bool _loadingCompanies = true;
   bool _companiesError = false;
 
+  bool get _isEditing => widget.existingUser != null;
+
   @override
   void initState() {
     super.initState();
+    final existing = widget.existingUser;
+    if (existing != null) {
+      _usernameController.text = existing.username;
+      _lastNameController.text = existing.lastName;
+      _emailController.text = existing.email;
+      _positionController.text = existing.position;
+      _role = existing.role;
+    }
     _loadCompanies();
   }
 
@@ -48,6 +61,11 @@ class _NewUserScreenState extends State<NewUserScreen> {
       setState(() {
         _companies = list;
         _loadingCompanies = false;
+        final existing = widget.existingUser;
+        if (existing != null) {
+          final matches = _companies.where((c) => c.id == existing.companyId);
+          _selectedCompany = matches.isEmpty ? null : matches.first;
+        }
       });
     } catch (_) {
       if (!mounted) return;
@@ -72,25 +90,36 @@ class _NewUserScreenState extends State<NewUserScreen> {
   }
 
   Future<void> _save() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Revisa los campos marcados en rojo')),
+      );
+      return;
+    }
 
     setState(() => _saving = true);
     try {
-      await _service.createUser(
-        User(
-          username: _usernameController.text.trim(),
-          lastName: _lastNameController.text.trim(),
-          email: _emailController.text.trim(),
-          position: _positionController.text.trim(),
-          companyId: _selectedCompany!.id!,
-          role: _role,
-          password: _passwordController.text,
+      final user = User(
+        id: widget.existingUser?.id,
+        username: _usernameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
+        email: _emailController.text.trim(),
+        position: _positionController.text.trim(),
+        companyId: _selectedCompany!.id!,
+        role: _role,
+        password: _passwordController.text,
+      );
+      if (_isEditing) {
+        await _service.updateUser(user);
+      } else {
+        await _service.createUser(user);
+      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_isEditing ? 'Usuario actualizado' : 'Usuario creado'),
         ),
       );
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Usuario creado')));
       Navigator.of(context).pop(true); // vuelve a la lista y refresca
     } catch (e) {
       if (!mounted) return;
@@ -108,7 +137,9 @@ class _NewUserScreenState extends State<NewUserScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       behavior: HitTestBehavior.opaque,
       child: Scaffold(
-        appBar: AppBar(title: const Text('Nuevo usuario')),
+        appBar: AppBar(
+          title: Text(_isEditing ? 'Editar usuario' : 'Nuevo usuario'),
+        ),
         body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -188,28 +219,31 @@ class _NewUserScreenState extends State<NewUserScreen> {
                         : "Selecciona un cliente",
                   ),
 
-                  const SizedBox(height: 16),
+                  if (!_isEditing)
+                    const SizedBox(height: 16),
 
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    style: const TextStyle(fontSize: AppTextSizes.base),
-                    decoration: const InputDecoration(
-                      labelText: 'Contraseña',
-                      prefixIcon: Icon(Icons.lock),
+                  if (!_isEditing)
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      style: const TextStyle(fontSize: AppTextSizes.base),
+                      decoration: InputDecoration(
+                        labelText: 'Contraseña',
+                        prefixIcon: const Icon(Icons.lock),
+                      ),
+                      validator: _isEditing
+                          ? null
+                          : (v) => Validators.required(
+                              v,
+                              message: 'Ingresa la contraseña',
+                            ),
                     ),
-                    validator: (v) => Validators.required(
-                      v,
-                      message: 'Ingresa la contraseña',
-                    ),
-                  ),
 
                   const SizedBox(height: 16),
 
                   AppDropdown<UserRole>(
                     value: _role,
                     items: UserRole.values
-                        .where((r) => r != UserRole.root)
                         .toList(),
                     itemLabel: (item) => item.wire,
                     onChanged: (r) =>
@@ -231,7 +265,7 @@ class _NewUserScreenState extends State<NewUserScreen> {
               icon: Icons.check,
               onPressed: _save,
               loading: _saving,
-              tooltip: 'Guardar usuario',
+              tooltip: _isEditing ? 'Guardar cambios' : 'Guardar usuario',
             ),
           ],
         ),

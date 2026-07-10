@@ -23,7 +23,7 @@ class MonitoredApi {
     );
   }
 
-  /// Para el POST no mandamos el id (lo genera el backend).
+  // Para el POST no mandamos el id (lo genera el backend).
   Map<String, dynamic> toJson() => {
     'name': name,
     'url': url,

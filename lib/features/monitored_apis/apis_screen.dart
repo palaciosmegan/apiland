@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:apiland/core/network/api_error.dart';
 import 'package:apiland/core/widgets/error_state.dart';
 import 'package:apiland/core/widgets/floating_nav_fab.dart';
+import 'package:apiland/core/widgets/swipe_to_edit.dart';
+import 'package:apiland/features/companies/data/company.dart';
+import 'package:apiland/features/companies/data/company_service.dart';
 import 'package:apiland/features/monitored_apis/data/monitored_api.dart';
 import 'package:apiland/features/monitored_apis/data/monitored_api_service.dart';
 import 'package:apiland/features/monitored_apis/new_api_screen.dart';
@@ -21,10 +24,34 @@ class _ApisScreenState extends State<ApisScreen> {
   Object? _error;
   bool _loading = true;
 
+  final CompanyService _companyService = CompanyService();
+  List<Company> _companies = [];
+  bool _loadingCompanies = true;
+
   @override
   void initState() {
     super.initState();
     _load();
+    _loadCompanies();
+  }
+
+  Future<void> _loadCompanies() async {
+    setState(() {
+      _loadingCompanies = true;
+    });
+    try {
+      final list = await _companyService.getCompanies();
+      if (!mounted) return;
+      setState(() {
+        _companies = list;
+        _loadingCompanies = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _loadingCompanies = false;
+      });
+    }
   }
 
   Future<void> _load() async {
@@ -53,6 +80,15 @@ class _ApisScreenState extends State<ApisScreen> {
       MaterialPageRoute(builder: (_) => const NewApiScreen(title: 'Nueva API')),
     );
     await _load(); // refresca al volver (por si se creó una)
+  }
+
+  Future<void> _editApi(MonitoredApi api) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => NewApiScreen(title: 'Editar API', existingApi: api),
+      ),
+    );
+    await _load(); // refresca al volver (por si se actualizó)
   }
 
   @override
@@ -95,7 +131,19 @@ class _ApisScreenState extends State<ApisScreen> {
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
         itemCount: _apis.length,
         separatorBuilder: (_, _) => const SizedBox(height: 16),
-        itemBuilder: (context, i) => ApiCard(api: _apis[i]),
+        itemBuilder: (context, i) {
+          final api = _apis[i];
+          String? companyName;
+          if (!_loadingCompanies) {
+            final matches = _companies.where((c) => c.id == api.companyId);
+            companyName = matches.isEmpty ? null : matches.first.name;
+          }
+          return SwipeToEdit(
+            itemKey: api.id ?? api.name,
+            onEdit: () => _editApi(api),
+            child: ApiCard(api: api, companyName: companyName),
+          );
+        },
       ),
     );
   }

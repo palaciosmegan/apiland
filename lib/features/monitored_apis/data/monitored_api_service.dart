@@ -26,4 +26,16 @@ class MonitoredApiService {
     // Si el backend no devuelve cuerpo, regresamos la que enviamos.
     return monitoredApi;
   }
+
+  // PUT /api/monitoredapis → actualiza un monitoredApi existente.
+  // El id ya no va en la ruta: ahora se manda dentro del body.
+  Future<MonitoredApi> updateMonitoredApi(MonitoredApi monitoredApi) async {
+    final res = await _dio.put(
+      _path,
+      data: {'id': monitoredApi.id, ...monitoredApi.toJson()},
+    );
+    final data = res.data;
+    if (data is Map<String, dynamic>) return MonitoredApi.fromJson(data);
+    return monitoredApi;
+  }
 }

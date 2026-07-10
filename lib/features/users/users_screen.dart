@@ -6,6 +6,7 @@ import 'package:apiland/core/network/api_error.dart';
 import 'package:apiland/core/widgets/error_state.dart';
 import 'package:apiland/core/widgets/floating_nav_fab.dart';
 import 'package:apiland/core/widgets/role_badge.dart';
+import 'package:apiland/core/widgets/swipe_to_edit.dart';
 import 'package:apiland/features/login/data/user.dart';
 import 'package:apiland/features/users/data/user_service.dart';
 import 'package:apiland/features/users/new_user_screen.dart';
@@ -82,6 +83,13 @@ class _UsersScreenState extends State<UsersScreen> {
     await _load(); // refresca al volver (por si se creó uno)
   }
 
+  Future<void> _editUser(User user) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => NewUserScreen(existingUser: user)),
+    );
+    await _load(); // refresca al volver (por si se actualizó)
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -128,28 +136,33 @@ class _UsersScreenState extends State<UsersScreen> {
             u.username,
             u.lastName,
           ].where((s) => s.isNotEmpty).join(' ');
-          return Card(
-            color: AppColors.secondarySurface,
-            child: ListTile(
-              leading: const Icon(
-                Icons.person_outline,
-                color: AppColors.textPrimary,
-              ),
-              title: Text(
-                fullName.isEmpty ? u.username : fullName,
-                style: const TextStyle(
-                  color: AppColors.textStandout,
-                  fontWeight: FontWeight.w600,
+          return SwipeToEdit(
+            itemKey: u.id ?? u.username,
+            onEdit: () => _editUser(u),
+            borderRadius: 12,
+            child: Card(
+              color: AppColors.secondarySurface,
+              child: ListTile(
+                leading: const Icon(
+                  Icons.person_outline,
+                  color: AppColors.textPrimary,
                 ),
+                title: Text(
+                  fullName.isEmpty ? u.username : fullName,
+                  style: const TextStyle(
+                    color: AppColors.textStandout,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                subtitle: Text(
+                  [
+                    u.position,
+                    if(!_loadingCompanies) _companies.firstWhere((c) => c.id == u.companyId, orElse: () => Company(id: 1, name: '', tipoCliente: '')).name,
+                  ].join(' · '),
+                  style: const TextStyle(color: AppColors.textPrimary, fontSize: AppTextSizes.xs),
+                ),
+                trailing: RoleBadge(role: u.role),
               ),
-              subtitle: Text(
-                [
-                  u.position,
-                  if(!_loadingCompanies) _companies.firstWhere((c) => c.id == u.companyId, orElse: () => Company(id: 1, name: '', tipoCliente: '')).name,
-                ].join(' · '),
-                style: const TextStyle(color: AppColors.textPrimary, fontSize: AppTextSizes.xs),
-              ),
-              trailing: RoleBadge(role: u.role),
             ),
           );
         },

@@ -28,4 +28,17 @@ class UserService {
     if (data is Map<String, dynamic>) return User.fromJson(data);
     return user;
   }
+
+  /// PUT /api/users → actualiza un usuario existente.
+  /// Si `password` viene vacío/null, no se manda (no se toca la contraseña).
+  Future<User> updateUser(User user) async {
+    final body = {'id': user.id, ...user.toJson()};
+    if (user.password == null || user.password!.isEmpty) {
+      body.remove('password');
+    }
+    final res = await _dio.put(_path, data: body);
+    final data = res.data;
+    if (data is Map<String, dynamic>) return User.fromJson(data);
+    return user;
+  }
 }

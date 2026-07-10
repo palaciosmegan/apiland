@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
 import 'package:apiland/features/monitored_apis/data/monitored_api.dart';
 
-/// Card de una API monitoreada (grid del listado).
-///
-/// NOTA: el backend solo provee `name` por ahora. El resto (cliente, status,
-/// incidentes, endpoints) son placeholders hasta que el modelo/API los incluya.
 class ApiCard extends StatelessWidget {
-  const ApiCard({super.key, required this.api});
+  const ApiCard({super.key, required this.api, this.companyName});
 
   final MonitoredApi api;
+
+  final String? companyName;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +49,7 @@ class ApiCard extends StatelessWidget {
                         color: AppColors.textStandout,
                       ),
                     ),
-                    const _Muted('Client name'),
+                    _Muted(companyName ?? '...'),
                   ],
                 ),
               ),
