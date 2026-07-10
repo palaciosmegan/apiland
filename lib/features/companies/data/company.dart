@@ -1,17 +1,24 @@
 /// Modelo de una compañía, con la misma estructura que devuelve la API:
 /// `{ id, name, tipoCliente }`.
 class Company {
-  const Company({this.id, required this.name, required this.tipoCliente});
+  const Company({
+    this.id,
+    required this.name,
+    required this.tipoCliente,
+    this.pictureUrl,
+  });
 
   final int? id;
   final String name;
   final String tipoCliente;
+  final String? pictureUrl;
 
   factory Company.fromJson(Map<String, dynamic> json) {
     return Company(
       id: json['id'] as int?,
       name: (json['name'] ?? '') as String,
       tipoCliente: (json['tipoCliente'] ?? '') as String,
+      pictureUrl: json['pictureUrl'] as String?,
     );
   }
 
@@ -19,5 +26,6 @@ class Company {
   Map<String, dynamic> toJson() => {
     'name': name,
     'tipoCliente': tipoCliente,
+    'pictureUrl': pictureUrl,
   };
 }

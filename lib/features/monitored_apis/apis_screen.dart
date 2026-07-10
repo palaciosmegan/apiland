@@ -5,6 +5,7 @@ import 'package:apiland/core/widgets/floating_nav_fab.dart';
 import 'package:apiland/core/widgets/swipe_to_edit.dart';
 import 'package:apiland/features/companies/data/company.dart';
 import 'package:apiland/features/companies/data/company_service.dart';
+import 'package:apiland/features/monitored_apis/api_detail_screen.dart';
 import 'package:apiland/features/monitored_apis/data/monitored_api.dart';
 import 'package:apiland/features/monitored_apis/data/monitored_api_service.dart';
 import 'package:apiland/features/monitored_apis/new_api_screen.dart';
@@ -91,6 +92,21 @@ class _ApisScreenState extends State<ApisScreen> {
     await _load(); // refresca al volver (por si se actualizó)
   }
 
+  Company? _companyFor(MonitoredApi api) {
+    if (_loadingCompanies) return null;
+    final matches = _companies.where((c) => c.id == api.companyId);
+    return matches.isEmpty ? null : matches.first;
+  }
+
+  Future<void> _openApi(MonitoredApi api) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ApiDetailScreen(api: api, company: _companyFor(api)),
+      ),
+    );
+    await _load(); // refresca al volver (por si se editó desde el detalle)
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -133,15 +149,14 @@ class _ApisScreenState extends State<ApisScreen> {
         separatorBuilder: (_, _) => const SizedBox(height: 16),
         itemBuilder: (context, i) {
           final api = _apis[i];
-          String? companyName;
-          if (!_loadingCompanies) {
-            final matches = _companies.where((c) => c.id == api.companyId);
-            companyName = matches.isEmpty ? null : matches.first.name;
-          }
+          final company = _companyFor(api);
           return SwipeToEdit(
             itemKey: api.id ?? api.name,
             onEdit: () => _editApi(api),
-            child: ApiCard(api: api, companyName: companyName),
+            child: GestureDetector(
+              onTap: () => _openApi(api),
+              child: ApiCard(api: api, companyName: company?.name),
+            ),
           );
         },
       ),

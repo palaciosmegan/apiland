@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
+import 'package:apiland/core/widgets/entity_avatar.dart';
 import 'package:apiland/features/monitored_apis/data/monitored_api.dart';
 
 class ApiCard extends StatelessWidget {
@@ -23,18 +24,11 @@ class ApiCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: AppColors.primary400.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.api,
-                  color: AppColors.primary200,
-                  size: 20,
-                ),
+              EntityAvatar(
+                name: api.name,
+                imageUrl: api.pictureUrl,
+                shape: AvatarShape.roundedSquare,
+                size: 36,
               ),
               const SizedBox(width: 16),
               Expanded(

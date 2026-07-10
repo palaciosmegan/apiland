@@ -23,11 +23,11 @@ class NewApiScreen extends StatefulWidget {
   State<NewApiScreen> createState() => _NewApiScreenState();
 }
 
-const List<String> refreshApiIntervalOptions = <String>[
-  '1 hora',
-  '2 horas',
-  '3 horas',
-];
+// const List<String> refreshApiIntervalOptions = <String>[
+//   '1 hora',
+//   '2 horas',
+//   '3 horas',
+// ];
 
 class _NewApiScreenState extends State<NewApiScreen> {
   /// Placeholder visual para secretos ya guardados (el backend nunca los
@@ -39,6 +39,7 @@ class _NewApiScreenState extends State<NewApiScreen> {
   final MonitoredApiService _monitoredApiService = MonitoredApiService();
   final ApiCredentialsService _credentialService = ApiCredentialsService();
   final _nameController = TextEditingController();
+  final _descriptionController = TextEditingController();
   final _urlController = TextEditingController();
 
   // AuthType.staticBearer
@@ -48,7 +49,7 @@ class _NewApiScreenState extends State<NewApiScreen> {
   final _credUsernameController = TextEditingController();
   final _credPasswordController = TextEditingController();
 
-  String _intervalDropdownValue = refreshApiIntervalOptions.first;
+  // String _intervalDropdownValue = refreshApiIntervalOptions.first;
   AuthType _authType = AuthType.none;
   bool _saving = false;
 
@@ -76,6 +77,7 @@ class _NewApiScreenState extends State<NewApiScreen> {
     final existing = widget.existingApi;
     if (existing != null) {
       _nameController.text = existing.name;
+      _descriptionController.text = existing.description;
       _urlController.text = existing.url;
       _loadExistingCredentials(existing.id!);
     }
@@ -126,6 +128,7 @@ class _NewApiScreenState extends State<NewApiScreen> {
   @override
   void dispose() {
     _nameController.dispose();
+    _descriptionController.dispose();
     _urlController.dispose();
     _bearerTokenController.dispose();
     _tokenEndpointController.dispose();
@@ -175,6 +178,7 @@ class _NewApiScreenState extends State<NewApiScreen> {
       final api = MonitoredApi(
         id: existing?.id,
         name: _nameController.text.trim(),
+        description: _descriptionController.text.trim(),
         companyId: _selectedCompany!.id!,
         url: _urlController.text.trim(),
         // refreshInterval: _intervalDropdownValue,
@@ -220,11 +224,11 @@ class _NewApiScreenState extends State<NewApiScreen> {
     }
   }
 
-  void intervalDropdownCallback(String? selectedValue) {
-    setState(() {
-      _intervalDropdownValue = selectedValue!;
-    });
-  }
+  // void intervalDropdownCallback(String? selectedValue) {
+  //   setState(() {
+  //     _intervalDropdownValue = selectedValue!;
+  //   });
+  // }
 
   /// Contenido de la ventana de auth según el tipo elegido.
   Widget _buildAuthTypeFields() {
@@ -232,7 +236,7 @@ class _NewApiScreenState extends State<NewApiScreen> {
       case AuthType.none:
         return Container(
           padding: const EdgeInsets.fromLTRB(16, 0, 0, 0),
-          child: const Text('No requiere más configuración'),
+          child: const Text('No requiere más configuración', style: TextStyle(fontSize: AppTextSizes.sm),),
         );
       case AuthType.staticBearer:
         final locked = _fieldLocked(_hasBearerToken);
@@ -382,16 +386,30 @@ class _NewApiScreenState extends State<NewApiScreen> {
 
                       SizedBox(height: 16),
 
-                      AppDropdown<String>(
-                        value: _intervalDropdownValue,
-                        items: refreshApiIntervalOptions,
-                        itemLabel: (item) => item,
-                        onChanged: intervalDropdownCallback,
-                        label: "Intervalo",
-                        prefixIcon: Icons.timer,
-                        validator: (value) =>
-                            value == null ? 'Selecciona un cliente' : null,
+                      TextField(
+                        controller: _descriptionController,
+                        keyboardType: TextInputType
+                            .multiline,
+                        minLines: 3,
+                        maxLines:
+                            5,
+                        decoration: InputDecoration(
+                          hintText: 'Descripción...',
+                          border:
+                              OutlineInputBorder(),
+                        ),
                       ),
+
+                      // AppDropdown<String>(
+                      //   value: _intervalDropdownValue,
+                      //   items: refreshApiIntervalOptions,
+                      //   itemLabel: (item) => item,
+                      //   onChanged: intervalDropdownCallback,
+                      //   label: "Intervalo",
+                      //   prefixIcon: Icons.timer,
+                      //   validator: (value) =>
+                      //       value == null ? 'Selecciona un cliente' : null,
+                      // ),
 
                       SizedBox(height: 24),
 
