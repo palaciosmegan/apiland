@@ -14,8 +14,9 @@ import 'package:apiland/features/monitored_apis/data/endpoint.dart';
 import 'package:apiland/features/monitored_apis/data/endpoint_service.dart';
 import 'package:apiland/features/monitored_apis/data/monitored_api.dart';
 
-/// Opciones de intervalo de chequeo (mismo texto que usa MonitoredApi).
-const List<String> checkIntervalOptions = <String>['1 hora', '2 horas', '3 horas'];
+/// Opciones de intervalo de chequeo, en horas (Endpoint.checkInterval es int
+/// en el backend).
+const List<int> checkIntervalOptions = <int>[1, 2, 3];
 
 class ApiDetailScreen extends StatefulWidget {
   const ApiDetailScreen({super.key, required this.api, this.company});
@@ -37,6 +38,9 @@ class _ApiDetailScreenState extends State<ApiDetailScreen> {
   List<Endpoint> _endpoints = const [];
   bool _loadingEndpoints = true;
   Object? _endpointsError;
+
+  // Ids con un chequeo manual en curso (deshabilita su botón mientras dura).
+  final Set<int> _checkingIds = {};
 
   @override
   void initState() {
@@ -145,6 +149,35 @@ class _ApiDetailScreenState extends State<ApiDetailScreen> {
     }
   }
 
+  Future<void> _checkEndpoint(Endpoint endpoint) async {
+    final id = endpoint.id;
+    if (id == null) return;
+    setState(() => _checkingIds.add(id));
+    try {
+      final result = await _endpointService.checkEndpoint(id);
+      if (!mounted) return;
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('${endpoint.name}: ${_formatCheckResult(result)}'),
+          // No se cierra solo: se queda hasta que le den a "Cerrar".
+          duration: const Duration(days: 1),
+          action: SnackBarAction(
+            label: 'Cerrar',
+            onPressed: messenger.hideCurrentSnackBar,
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(apiErrorMessage(e))));
+    } finally {
+      if (mounted) setState(() => _checkingIds.remove(id));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final api = widget.api;
@@ -188,6 +221,8 @@ class _ApiDetailScreenState extends State<ApiDetailScreen> {
                 _EndpointCard(
                   endpoint: _endpoints[i],
                   onEdit: () => _editEndpoint(i),
+                  onCheck: () => _checkEndpoint(_endpoints[i]),
+                  checking: _checkingIds.contains(_endpoints[i].id),
                 ),
                 const SizedBox(height: 12),
               ],
@@ -512,6 +547,16 @@ class _Chip extends StatelessWidget {
   }
 }
 
+/// Muestra la respuesta cruda del check manual en el snackbar: linda si es
+/// un Map, tal cual si es cualquier otra cosa.
+String _formatCheckResult(dynamic data) {
+  if (data is Map) {
+    return data.entries.map((e) => '${e.key}: ${e.value}').join(' · ');
+  }
+  if (data == null) return 'OK';
+  return data.toString();
+}
+
 Color _methodColor(String method) => switch (method.toUpperCase()) {
   'GET' => AppColors.green400,
   'POST' => AppColors.primary400,
@@ -523,10 +568,17 @@ Color _methodColor(String method) => switch (method.toUpperCase()) {
 };
 
 class _EndpointCard extends StatelessWidget {
-  const _EndpointCard({required this.endpoint, required this.onEdit});
+  const _EndpointCard({
+    required this.endpoint,
+    required this.onEdit,
+    required this.onCheck,
+    required this.checking,
+  });
 
   final Endpoint endpoint;
   final VoidCallback onEdit;
+  final VoidCallback onCheck;
+  final bool checking;
 
   @override
   Widget build(BuildContext context) {
@@ -553,6 +605,18 @@ class _EndpointCard extends StatelessWidget {
                 ),
               ),
               IconButton(
+                icon: checking
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.bolt, size: 18),
+                color: AppColors.primary400,
+                tooltip: 'Chequear ahora',
+                onPressed: checking ? null : onCheck,
+              ),
+              IconButton(
                 icon: const Icon(Icons.edit_outlined, size: 18),
                 color: AppColors.onCardMuted,
                 tooltip: 'Editar',
@@ -568,7 +632,7 @@ class _EndpointCard extends StatelessWidget {
               color: _methodColor(endpoint.method),
             ),
           ),
-          _InfoRow(label: 'Intervalo', value: endpoint.checkInterval),
+          _InfoRow(label: 'Intervalo', value: '${endpoint.checkInterval} h'),
           _InfoRow(
             label: 'Verificación',
             valueWidget: _Chip(
@@ -609,7 +673,7 @@ class _AddEndpointSheetState extends State<_AddEndpointSheet> {
   // Solo el path: la base (widget.parentUrl) va fija como prefixText.
   late final _pathController = TextEditingController(text: _initialPath);
   late String _method = widget.initial?.method.toUpperCase() ?? 'GET';
-  late String _checkInterval =
+  late int _checkInterval =
       checkIntervalOptions.contains(widget.initial?.checkInterval)
       ? widget.initial!.checkInterval
       : checkIntervalOptions.first;
@@ -709,20 +773,28 @@ class _AddEndpointSheetState extends State<_AddEndpointSheet> {
                       v == null || v.trim().isEmpty ? 'Ingresa un nombre' : null,
                 ),
                 const SizedBox(height: 16),
+                // Base de la API padre: se ve, pero no se puede editar acá
+                // (iba como prefixText del campo, pero le comía todo el
+                // espacio al texto editable y no se veía lo que escribías).
+                Text(
+                  'Base: ${widget.parentUrl}',
+                  style: const TextStyle(
+                    fontSize: AppTextSizes.xs,
+                    color: AppColors.gray400,
+                  ),
+                ),
+                const SizedBox(height: 6),
                 TextFormField(
                   controller: _pathController,
                   keyboardType: TextInputType.url,
-                  style: const TextStyle(fontSize: AppTextSizes.base),
-                  decoration: InputDecoration(
-                    labelText: 'URL',
+                  style: const TextStyle(
+                    fontSize: AppTextSizes.base,
+                    color: AppColors.textStandout,
+                  ),
+                  decoration: const InputDecoration(
+                    labelText: 'Path',
                     hintText: '/health',
-                    prefixIcon: const Icon(Icons.link),
-                    // Base de la API padre: se ve, pero no se puede editar.
-                    prefixText: widget.parentUrl,
-                    prefixStyle: const TextStyle(
-                      fontSize: AppTextSizes.base,
-                      color: AppColors.gray400,
-                    ),
+                    prefixIcon: Icon(Icons.link),
                   ),
                   validator: (v) =>
                       v == null || v.trim().isEmpty ? 'Ingresa el path' : null,
@@ -737,12 +809,12 @@ class _AddEndpointSheetState extends State<_AddEndpointSheet> {
                   prefixIcon: Icons.swap_calls,
                 ),
                 const SizedBox(height: 16),
-                AppDropdown<String>(
+                AppDropdown<int>(
                   value: _checkInterval,
                   items: checkIntervalOptions,
-                  itemLabel: (i) => i,
-                  onChanged: (i) =>
-                      setState(() => _checkInterval = i ?? checkIntervalOptions.first),
+                  itemLabel: (h) => '$h h',
+                  onChanged: (h) =>
+                      setState(() => _checkInterval = h ?? checkIntervalOptions.first),
                   label: 'Intervalo de chequeo',
                   prefixIcon: Icons.schedule,
                 ),

@@ -54,4 +54,11 @@ class EndpointService {
         .map((e) => Endpoint.fromJson(e as Map<String, dynamic>))
         .toList();
   }
+
+  /// POST /api/endpoints/{id}/check → chequeo manual, sin body.
+  /// Puede devolver 429 si se llama antes de 10s del último check.
+  Future<dynamic> checkEndpoint(int endpointId) async {
+    final res = await _dio.post('/api/endpoints/$endpointId/check');
+    return res.data;
+  }
 }

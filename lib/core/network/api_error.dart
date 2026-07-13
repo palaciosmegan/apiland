@@ -32,6 +32,7 @@ String apiErrorMessage(Object error) {
     if (code == 403) return 'No tienes permiso para esta acción.';
     if (code == 404) return 'No se encontró el recurso.';
     if (code == 400) return 'Datos inválidos. Revisa los campos.';
+    if (code == 429) return 'Espera unos segundos antes de volver a chequear.';
     if (code != null && code >= 500) {
       return 'Error del servidor. Intenta más tarde.';
     }

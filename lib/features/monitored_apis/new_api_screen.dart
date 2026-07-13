@@ -1,6 +1,7 @@
 import 'package:apiland/core/network/api_error.dart';
 import 'package:apiland/core/utils/validators.dart';
 import 'package:apiland/core/widgets/app_dropdown.dart';
+import 'package:apiland/core/widgets/entity_avatar.dart';
 import 'package:apiland/core/widgets/floating_nav_fab.dart';
 import 'package:apiland/features/monitored_apis/data/api_credentials_service.dart';
 import 'package:apiland/features/monitored_apis/data/auth_type.dart';
@@ -41,6 +42,7 @@ class _NewApiScreenState extends State<NewApiScreen> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _urlController = TextEditingController();
+  final _pictureUrlController = TextEditingController();
 
   // AuthType.staticBearer
   final _bearerTokenController = TextEditingController();
@@ -79,6 +81,7 @@ class _NewApiScreenState extends State<NewApiScreen> {
       _nameController.text = existing.name;
       _descriptionController.text = existing.description;
       _urlController.text = existing.url;
+      _pictureUrlController.text = existing.pictureUrl ?? '';
       _loadExistingCredentials(existing.id!);
     }
     _loadCompanies();
@@ -130,6 +133,7 @@ class _NewApiScreenState extends State<NewApiScreen> {
     _nameController.dispose();
     _descriptionController.dispose();
     _urlController.dispose();
+    _pictureUrlController.dispose();
     _bearerTokenController.dispose();
     _tokenEndpointController.dispose();
     _credUsernameController.dispose();
@@ -175,12 +179,14 @@ class _NewApiScreenState extends State<NewApiScreen> {
     setState(() => _saving = true);
     try {
       final existing = widget.existingApi;
+      final pictureUrl = _pictureUrlController.text.trim();
       final api = MonitoredApi(
         id: existing?.id,
         name: _nameController.text.trim(),
         description: _descriptionController.text.trim(),
         companyId: _selectedCompany!.id!,
         url: _urlController.text.trim(),
+        pictureUrl: pictureUrl.isEmpty ? null : pictureUrl,
         // refreshInterval: _intervalDropdownValue,
       );
       final created = _isEditing
@@ -398,6 +404,40 @@ class _NewApiScreenState extends State<NewApiScreen> {
                           border:
                               OutlineInputBorder(),
                         ),
+                      ),
+
+                      SizedBox(height: 16),
+
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: EntityAvatar(
+                              name: _nameController.text,
+                              imageUrl: _pictureUrlController.text,
+                              shape: AvatarShape.roundedSquare,
+                              size: 48,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _pictureUrlController,
+                              keyboardType: TextInputType.url,
+                              style: const TextStyle(fontSize: AppTextSizes.base),
+                              decoration: const InputDecoration(
+                                labelText: "URL del logo",
+                                hintText: "https://.../logo.png",
+                                prefixIcon: Icon(Icons.image_outlined),
+                              ),
+                              validator: (v) => v == null || v.trim().isEmpty
+                                  ? null
+                                  : Validators.url(v),
+                              onChanged: (_) => setState(() {}),
+                            ),
+                          ),
+                        ],
                       ),
 
                       // AppDropdown<String>(

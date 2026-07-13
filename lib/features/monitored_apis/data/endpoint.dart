@@ -13,7 +13,7 @@ class Endpoint {
   final String name;
   final String method;
   final String url;
-  final String checkInterval;
+  final int checkInterval;
   final int parentApiId;
   final bool isManualOnly;
 
@@ -23,7 +23,7 @@ class Endpoint {
       name: (json['name'] ?? '') as String,
       method: (json['method'] ?? '') as String,
       url: (json['url'] ?? '') as String,
-      checkInterval: (json['checkInterval'] ?? '') as String,
+      checkInterval: (json['checkInterval'] ?? 1) as int,
       parentApiId: json['parentApiId'] as int,
       isManualOnly: (json['isManualOnly'] ?? false) as bool,
     );
