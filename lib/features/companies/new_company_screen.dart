@@ -1,4 +1,6 @@
+import 'package:apiland/core/utils/validators.dart';
 import 'package:apiland/core/widgets/app_dropdown.dart';
+import 'package:apiland/core/widgets/entity_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:apiland/constants/theme/app_theme.dart';
 import 'package:apiland/core/network/api_error.dart';
@@ -20,6 +22,7 @@ const List<String> apiTypeList = <String>['Interna', 'Externa'];
 class _NewCompanyScreenState extends State<NewCompanyScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _pictureUrlController = TextEditingController();
   final CompanyService _service = CompanyService();
 
   String _typeDropdownValue = apiTypeList.first;
@@ -34,6 +37,7 @@ class _NewCompanyScreenState extends State<NewCompanyScreen> {
   @override
   void dispose() {
     _nameController.dispose();
+    _pictureUrlController.dispose();
     super.dispose();
   }
 
@@ -43,10 +47,12 @@ class _NewCompanyScreenState extends State<NewCompanyScreen> {
 
     setState(() => _saving = true);
     try {
+      final pictureUrl = _pictureUrlController.text.trim();
       await _service.createCompany(
         Company(
           name: _nameController.text.trim(),
           tipoCliente: _typeDropdownValue,
+          pictureUrl: pictureUrl.isEmpty ? null : pictureUrl,
         ),
       );
       if (!mounted) return;
@@ -115,6 +121,39 @@ class _NewCompanyScreenState extends State<NewCompanyScreen> {
                         onChanged: apiTypeDropdownCallback,
                         label: "Tipo",
                         prefixIcon: Icons.lan,
+                      ),
+
+                      SizedBox(height: 16),
+
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: EntityAvatar(
+                              name: _nameController.text,
+                              imageUrl: _pictureUrlController.text,
+                              size: 48,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _pictureUrlController,
+                              keyboardType: TextInputType.url,
+                              style: const TextStyle(fontSize: AppTextSizes.base),
+                              decoration: const InputDecoration(
+                                labelText: "URL del logo",
+                                hintText: "https://.../logo.png",
+                                prefixIcon: Icon(Icons.image_outlined),
+                              ),
+                              validator: (v) => v == null || v.trim().isEmpty
+                                  ? null
+                                  : Validators.url(v),
+                              onChanged: (_) => setState(() {}),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
